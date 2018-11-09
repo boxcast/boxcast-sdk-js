@@ -28,6 +28,11 @@ const config = {
     libraryTarget: 'umd',
     umdNamedDefine: true
   },
+  plugins: [
+    new webpack.DefinePlugin({
+      NPM_VERSION: JSON.stringify(pkg.version)
+    })
+  ],
   module: {
     rules: [
       {
