@@ -13,6 +13,7 @@ const storage = getStorage();
 export default class Html5VideoAnalytics {
   constructor(state) {
     this.browserState = state;
+    this._queue = [];
   }
 
   attach(params) {
