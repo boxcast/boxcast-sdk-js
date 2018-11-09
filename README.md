@@ -57,18 +57,18 @@ Use the `analytics` object to ensure your video player is properly reporting pla
 var { analytics } = require('boxcast-sdk-js');
 
 analytics.configure({
-	host: 'override',           // or window.location.hostname
-	os: 'override',             // or detected automatically from user agent
-	browser_name: 'override',   // or detected automatically from user agent
-	browser_version: 'override',// or detected automatically from user agent
-	player_version: 'override', // or defaults to version of the boxcast plugins library
+    host: 'override',           // or window.location.hostname
+    os: 'override',             // or detected automatically from user agent
+    browser_name: 'override',   // or detected automatically from user agent
+    browser_version: 'override',// or detected automatically from user agent
+    player_version: 'override', // or defaults to version of the boxcast plugins library
 });
 
 analytics.attach({
-	player: $('video'),
-	mode: analytics.MODE_HTML5, // or MODE_VIDEOJS or MODE_CLAPPR or MODE_TVMLKIT
-	broadcast: broadcast,       // must contain keys: timeframe, id, account_id
-	channel_id: channel_id,     // or defaults to broadcast.channel_id
+    player: $('video'),
+    mode: analytics.MODE_HTML5, // or MODE_VIDEOJS or MODE_CLAPPR or MODE_TVMLKIT
+    broadcast: broadcast,       // must contain keys: timeframe, id, account_id
+    channel_id: channel_id,     // or defaults to broadcast.channel_id
 });
 ```
 
