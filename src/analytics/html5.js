@@ -170,10 +170,7 @@ export default class Html5VideoAnalytics {
     var requeue = [];
 
     this._queue.forEach((options) => {
-      axios.post(METRICS_URL, {
-        method: 'POST',
-        body: JSON.stringify(options)
-      }).catch((error) => {
+      axios.post(METRICS_URL, options).catch((error) => {
         options.__attempts = (options.__attempts || 0) + 1;
         if (options.__attempts <= 5) {
           console.error('Unable to post metrics; will retry', error, options);
