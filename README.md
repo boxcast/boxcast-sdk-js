@@ -4,8 +4,6 @@ This library can be used for custom integration projects where the standard boxc
 video player may not suffice.  We do strongly encourage you to use the standard player where possible,
 because it is the most robust and well tested playback option.
 
-![Travis](https://travis-ci.org/boxcast/boxcast-sdk-js.svg?branch=master)
-
 ## Getting Started
 
 ```
@@ -59,7 +57,7 @@ var { analytics } = require('boxcast-sdk-js');
 analytics.configure({
     browser_name: 'My Browser',       // or detected automatically from user agent
     browser_version: '3.0',           // or detected automatically from user agent
-    player_version: 'my-player v2.1'  // or defaults to version of the boxcast-sdk-js
+    player_version: 'my-player v2.1'  // or defaults to current version of boxcast-sdk-js
 });
 
 analytics.mode('html5').attach({
