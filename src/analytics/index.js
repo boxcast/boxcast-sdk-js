@@ -10,6 +10,7 @@ var OVERRIDE_STATE = {
 const analytics = {
   configure: function(params) {
     OVERRIDE_STATE = params;
+    return this;
   },
   getState: function() {
     var browserState = {

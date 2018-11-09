@@ -27,26 +27,26 @@ viewed in the native boxcast.js player.
 var { api } = require('boxcast-sdk-js');
 
 api.channels.list(account_id, {
-    s: 'name',
-    l: 20,
-    p: 1
-}).then((response) => console.log(response));
+    s: 'name', // sort by
+    l: 20,     // page limit
+    p: 0       // page number
+}).then((r) => console.log(r.pagination, r.data));
 
 api.broadcasts.list(channel_id, {
     q: 'timeframe:current',
     s: '-starts_at',
     l: 20,
-    p: 1
-}).then((response) => console.log(response));
+    p: 0
+}).then((r) => console.log(r.pagination, r.data));
 
 api.broadcasts.get(broadcast_id)
-    .then((response) => console.log(response));
+    .then((broadcast) => console.log(broadcast));
 
 api.views.get(broadcast_id, {
     channel_id: channel_id,
     host: window.location.hostname,
     extended: true
-}).then((response) => console.log(response));
+}).then((view) => console.log(view));
 ```
 
 ## Analytics
@@ -57,18 +57,15 @@ Use the `analytics` object to ensure your video player is properly reporting pla
 var { analytics } = require('boxcast-sdk-js');
 
 analytics.configure({
-    host: 'override',           // or window.location.hostname
-    os: 'override',             // or detected automatically from user agent
-    browser_name: 'override',   // or detected automatically from user agent
-    browser_version: 'override',// or detected automatically from user agent
-    player_version: 'override', // or defaults to version of the boxcast plugins library
+    browser_name: 'My Browser',       // or detected automatically from user agent
+    browser_version: '3.0',           // or detected automatically from user agent
+    player_version: 'my-player v2.1'  // or defaults to version of the boxcast-sdk-js
 });
 
-analytics.attach({
+analytics.mode('html5').attach({
     player: $('video'),
-    mode: analytics.MODE_HTML5, // or MODE_VIDEOJS or MODE_CLAPPR or MODE_TVMLKIT
-    broadcast: broadcast,       // must contain keys: timeframe, id, account_id
-    channel_id: channel_id,     // or defaults to broadcast.channel_id
+    broadcast: broadcast,   // must contain keys: timeframe, id, account_id
+    channel_id: channel_id  // or defaults to broadcast.channel_id
 });
 ```
 

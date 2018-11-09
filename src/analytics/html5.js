@@ -20,7 +20,7 @@ export default class Html5VideoAnalytics {
 
     this.player = player;
     this.broadcastInfo = {
-      channel_id: channel_id,
+      channel_id: channel_id || broadcast.channel_id,
       account_id: broadcast.account_id,
       is_live: (broadcast.timeframe === 'current'),
       broadcast_id: broadcast.id
