@@ -1,5 +1,6 @@
 /* eslint camelcase: 0 */
 /* eslint no-unused-vars: 0 */
+const Html5VideoAnalytics = require('./html5.js');
 
 var DEFAULT_PARAMETERS = {
   host: window.location.hostname,
@@ -8,12 +9,6 @@ var DEFAULT_PARAMETERS = {
   browser_version: '',
   player_version: ''
 };
-
-class Html5VideoAnalytics {
-  attach(params) {
-    const { player, broadcast, channel_id } = params;
-  }
-}
 
 const analytics = {
   configure: function(params) {
