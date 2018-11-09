@@ -17,7 +17,7 @@ const analytics = {
       os: (platform.os || '').toString(),
       browser_name: platform.name,
       browser_version: platform.version,
-      player_version: NPM_VERSION
+      player_version: `boxcast-sdk-js v${NPM_VERSION}`
     };
 
     return Object.assign({}, browserState, OVERRIDE_STATE);
