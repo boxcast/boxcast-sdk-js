@@ -1,3 +1,8 @@
+//
+// Copyright (c) BoxCast, Inc. and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
+//
+
 /* global describe, it, before */
 
 import chai from 'chai';
@@ -16,7 +21,34 @@ describe('BoxCast SDK Global Exports', () => {
   });
 });
 
-describe('api', () => {
+describe('analytics', () => {
+  it('should allow global configuration overrides', () => {
+    analytics.configure({
+      host: 'My Custom App',
+      player_version: 'my-player v2.3'
+    });
+    var state = analytics.getState();
+    expect(state.host).to.equal('My Custom App');
+    expect(state.player_version).to.equal('my-player v2.3');
+  });
+  it('should provide an HTML5 <video> engine', () => {
+    var video = document.createElement('video');
+    var impl = analytics.mode('html5');
+    impl.attach({
+      player: video,
+      broadcast: {
+        account_id: 'a1000',
+        channel_id: 'c1000',
+        id: 'b1000',
+        timeframe: 'past'
+      }
+    });
+    expect(impl.isPlaying).to.be.false;
+    expect(impl.isBuffering).to.be.false;
+  });
+});
+
+describe('api integration test', () => {
   it('should list account channels', (done) => {
     api.channels.list('DEMODEMO', {s: 'name', l: '2'}).then((r) => {
       expect(r.pagination).to.be.not.null;
