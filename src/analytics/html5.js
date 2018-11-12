@@ -65,7 +65,7 @@ export default class Html5VideoAnalytics {
       this._handleBufferingEnd();
     }, true);
     v.addEventListener('seeking', () => {
-      this.handleNormalOperation();
+      this._handleNormalOperation();
       this.report('seek', {offset: this.player.currentTime});
     }, true);
     v.addEventListener('seeked', () => {
