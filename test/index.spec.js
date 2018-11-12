@@ -35,7 +35,7 @@ describe('analytics', () => {
     var video = document.createElement('video');
     var impl = analytics.mode('html5');
     impl.attach({
-      player: video,
+      video: video,
       broadcast: {
         account_id: 'a1000',
         channel_id: 'c1000',

@@ -22,9 +22,12 @@ export default class Html5VideoAnalytics {
   }
 
   attach(params) {
-    const { player, broadcast, channel_id } = params;
+    const { video, broadcast, channel_id } = params;
 
-    this.player = player;
+    if (!video) throw Error('video is required');
+    if (!broadcast) throw Error('broadcast is required');
+
+    this.player = video;
     this.broadcastInfo = {
       channel_id: channel_id || broadcast.channel_id,
       account_id: broadcast.account_id,

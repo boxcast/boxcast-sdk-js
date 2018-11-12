@@ -72,9 +72,8 @@ analytics.configure({
 });
 
 analytics.mode('html5').attach({
-    player: $('video'),
+    video: document.querySelector('video'),
     broadcast: broadcast,   // must contain keys: timeframe, id, account_id
     channel_id: channel_id  // or defaults to broadcast.channel_id
 });
 ```
-
