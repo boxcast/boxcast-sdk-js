@@ -9,8 +9,8 @@ because it is the most robust and well tested playback option.
 ```
 <script src="https://js.boxcast.com/libs/boxcast-sdk-latest.min.js"></script>
 <script>
-    var analytics = window['boxcast-sdk'].analytics;
-    var api = window['boxcast-sdk'].api;
+  var analytics = BoxCastSDK.analytics;
+  var api = BoxCastSDK.api;
 </script>
 ```
 
