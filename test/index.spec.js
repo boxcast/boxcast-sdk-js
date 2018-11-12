@@ -46,6 +46,25 @@ describe('analytics', () => {
     expect(impl.isPlaying).to.be.false;
     expect(impl.isBuffering).to.be.false;
   });
+  it('should provide a Video.JS engine', () => {
+    var player = {
+      on: (evt, callback) => {},
+      currentTime: () => 42.0,
+      videoHeight: () => 1080
+    };
+    var impl = analytics.mode('video.js');
+    impl.attach({
+      player: player,
+      broadcast: {
+        account_id: 'a1000',
+        channel_id: 'c1000',
+        id: 'b1000',
+        timeframe: 'past'
+      }
+    });
+    expect(impl.isPlaying).to.be.false;
+    expect(impl.isBuffering).to.be.false;
+  });
 });
 
 describe('api integration test', () => {

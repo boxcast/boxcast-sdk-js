@@ -8,9 +8,9 @@
 
 const platform = require('platform');
 const Html5VideoAnalytics = require('./html5.js');
+const VideoJsAnalytics = require('./videojs.js');
 
-var OVERRIDE_STATE = {
-};
+var OVERRIDE_STATE = {};
 
 const analytics = {
   configure: function(params) {
@@ -32,6 +32,8 @@ const analytics = {
     switch (mode) {
       case 'html5':
         return new Html5VideoAnalytics(this.getState());
+      case 'video.js':
+        return new VideoJsAnalytics(this.getState());
     }
     throw Error(`Mode ${mode} not supported`);
   }

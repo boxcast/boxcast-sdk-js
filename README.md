@@ -49,25 +49,25 @@ Notes:
 
 ```javascript
 api.channels.list(account_id, {
-    s: 'name', // sort by
-    l: 20,     // page limit
-    p: 0       // page number
+  s: 'name', // sort by
+  l: 20,     // page limit
+  p: 0       // page number
 }).then((r) => console.log(r.pagination, r.data));
 
 api.broadcasts.list(channel_id, {
-    q: 'timeframe:current',
-    s: '-starts_at',
-    l: 20,
-    p: 0
+  q: 'timeframe:current',
+  s: '-starts_at',
+  l: 20,
+  p: 0
 }).then((r) => console.log(r.pagination, r.data));
 
 api.broadcasts.get(broadcast_id)
-    .then((broadcast) => console.log(broadcast));
+  .then((broadcast) => console.log(broadcast));
 
 api.views.get(broadcast_id, {
-    channel_id: channel_id,
-    host: window.location.hostname,
-    extended: true
+  channel_id: channel_id,
+  host: window.location.hostname,
+  extended: true
 }).then((view) => console.log(view));
 ```
 
@@ -77,14 +77,20 @@ Use the `analytics` object to ensure your custom video player is properly report
 
 ```javascript
 analytics.configure({
-    browser_name: 'My Browser',       // or detected automatically from user agent
-    browser_version: '3.0',           // or detected automatically from user agent
-    player_version: 'my-player v2.1'  // or defaults to current version of boxcast-sdk-js
+  browser_name: 'My Browser',       // or detected automatically from user agent
+  browser_version: '3.0',           // or detected automatically from user agent
+  player_version: 'my-player v2.1'  // or defaults to current version of boxcast-sdk-js
 });
 
 analytics.mode('html5').attach({
-    video: document.querySelector('video'),
-    broadcast: broadcast,   // must contain keys: timeframe, id, account_id
-    channel_id: channel_id  // or defaults to broadcast.channel_id
+  video: document.querySelector('video'),
+  broadcast: broadcast,   			// must contain keys: timeframe, id, account_id
+  channel_id: channel_id  			// or defaults to broadcast.channel_id
+});
+
+// ... or if using video.js ... //
+
+analytics.mode('video.js').attach({
+  player: player, broadcast: broadcast, channel_id: channel_id
 });
 ```
