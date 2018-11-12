@@ -1,5 +1,10 @@
+//
+// Copyright (c) BoxCast, Inc. and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
+//
+
 /* eslint camelcase: 0 */
-/* eslint no-unused-vars: 0 */
+
 const { uuid, normalizeError, getStorage } = require('../utils');
 const axios = require('axios');
 

@@ -1,3 +1,8 @@
+//
+// Copyright (c) BoxCast, Inc. and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
+//
+
 const axios = require('axios');
 
 const API_ROOT = 'https://api.boxcast.com';

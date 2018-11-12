@@ -1,6 +1,11 @@
+//
+// Copyright (c) BoxCast, Inc. and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
+//
+
 /* global NPM_VERSION */
 /* eslint camelcase: 0 */
-/* eslint no-unused-vars: 0 */
+
 const platform = require('platform');
 const Html5VideoAnalytics = require('./html5.js');
 
