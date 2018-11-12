@@ -92,6 +92,15 @@ export default class Html5VideoAnalytics {
     }, true);
   }
 
+  _getCurrentTime() {
+    return this.player.currentTime;
+  }
+
+  _getCurrentLevelHeight() {
+    // TODO: consider a more appropriate way to get level height, e.g. if using hls.js
+    return this.player.videoHeight;
+  }
+
   _handleBufferingStart() {
     this.isBuffering = true;
     this.lastBufferStart = this.lastBufferStart || new Date();
@@ -169,12 +178,10 @@ export default class Html5VideoAnalytics {
     options.hour_of_day = n.getHours(); // hour-of-day in local time
     options.day_of_week = n.getDay();
     options.action = action;
-    options.position = this.player.currentTime;
+    options.position = this._getCurrentTime();
     options.duration = Math.round(this.durationPlaying / 1000);
     options.duration_buffering = Math.round(this.durationBuffering / 1000);
-
-    // TODO: consider a more appropriate way to get level height, e.g. if using hls.js
-    options.videoHeight = this.player.videoHeight;
+    options.videoHeight = this._getCurrentLevelHeight();
 
     this._queue.push(options);
     this._dequeue();
