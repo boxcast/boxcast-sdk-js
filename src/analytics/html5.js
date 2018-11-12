@@ -62,11 +62,12 @@ export default class Html5VideoAnalytics {
     }, true);
     v.addEventListener('playing', () => {
       this._handleNormalOperation();
+      this.isPlaying = true;
       this._handleBufferingEnd();
     }, true);
     v.addEventListener('seeking', () => {
       this._handleNormalOperation();
-      this.report('seek', {offset: this.player.currentTime});
+      this._report('seek', {offset: this.player.currentTime});
     }, true);
     v.addEventListener('seeked', () => {
       this._handleNormalOperation();
@@ -126,7 +127,12 @@ export default class Html5VideoAnalytics {
     }
     var n = new Date();
     if ((n - this.lastReportAt) > TIME_REPORT_INTERVAL_MS) {
+      // Report it to keep server in-sycn
       this._report('time');
+    } else {
+      // Accumulate playing time but do not report
+      this.durationPlaying += (n - (this.lastReportAt || n));
+      this.lastReportAt = n;
     }
   }
 
