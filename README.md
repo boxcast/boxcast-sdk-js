@@ -7,7 +7,21 @@ because it is the most robust and well tested playback option.
 ## Getting Started
 
 ```
+<script src="https://js.boxcast.com/libs/boxcast-sdk-latest.min.js"></script>
+<script>
+    var analytics = window['boxcast-sdk'].analytics;
+    var api = window['boxcast-sdk'].api;
+</script>
+```
+
+_or, install via NPM_
+
+```
+# First, install the SDK from NPM
 npm install boxcast-sdk-js --save
+
+# Then, in your javascript project:
+var { analytics, api } = require('boxcast-sdk-js');
 ```
 
 You will need to know your BoxCast account ID and corresponding channel IDs in order to properly
@@ -22,7 +36,6 @@ Note that certain types of authenticated broadcasts (tickted, etc) are not suppo
 viewed in the native boxcast.js player.
 
 ```javascript
-var { api } = require('boxcast-sdk-js');
 
 api.channels.list(account_id, {
     s: 'name', // sort by
@@ -52,8 +65,6 @@ api.views.get(broadcast_id, {
 Use the `analytics` object to ensure your video player is properly reporting playback metrics.
 
 ```javascript
-var { analytics } = require('boxcast-sdk-js');
-
 analytics.configure({
     browser_name: 'My Browser',       // or detected automatically from user agent
     browser_version: '3.0',           // or detected automatically from user agent
