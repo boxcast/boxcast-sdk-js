@@ -1,8 +1,15 @@
 # BoxCast SDK for JavaScript
 
-This library can be used for custom integration projects where the standard boxcast.js embeddable
-video player may not suffice.  We do strongly encourage you to use the standard player where possible,
-because it is the most robust and well tested playback option.
+This library can be used for custom integration projects where the standard BoxCast embedded
+player may not suffice.
+
+We do strongly encourage you to use the standard embedded player instead of this library where possible,
+because it is the most robust and well-tested playback option.
+
+See Related:
+ * [BoxCast Embedded Player Documentation](http://boxcast.github.io/boxcast_js_docs/)
+ * [BoxCast Example Video Portal](https://github.com/boxcast/example_video_portal_vuejs)
+ * [BoxCast API Documentation](http://boxcast.github.io/boxcast_api/)
 
 ## Getting Started
 
@@ -34,7 +41,7 @@ responses contain both pagination information and resulting data.
 
 Notes:
 
- * Authenticated or restricted broadcasts (tickted, etc) are not supported and must be
+ * Authenticated or restricted broadcasts (ticketed, etc) are not supported and must be
    viewed in the native boxcast.js player.
  * Your API credentials (client ID, secret) are not required to access these routes.
 
@@ -64,7 +71,7 @@ api.views.get(broadcast_id, {
 
 ## Analytics
 
-Use the `analytics` object to ensure your video player is properly reporting playback metrics.
+Use the `analytics` object to ensure your custom video player is properly reporting playback metrics.
 
 ```javascript
 analytics.configure({
