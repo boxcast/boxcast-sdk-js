@@ -27,16 +27,18 @@ var { analytics, api } = require('boxcast-sdk-js');
 You will need to know your BoxCast account ID and corresponding channel IDs in order to properly
 utilize this library.  Contact BoxCast developer support if you need assistance.
 
-## API Queries
+## Public API Queries
 
-Use the `api` object to query the BoxCast API for your account.  All methods return a promise.  List
+Use the `api` object to query the BoxCast API in public scope.  All methods return a promise.  List
 responses contain both pagination information and resulting data.
 
-Note that certain types of authenticated broadcasts (tickted, etc) are not supported and must be
-viewed in the native boxcast.js player.
+Notes:
+
+ * Authenticated or restricted broadcasts (tickted, etc) are not supported and must be
+   viewed in the native boxcast.js player.
+ * Your API credentials (client ID, secret) are not required to access these routes.
 
 ```javascript
-
 api.channels.list(account_id, {
     s: 'name', // sort by
     l: 20,     // page limit
