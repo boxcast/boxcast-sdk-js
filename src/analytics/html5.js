@@ -148,7 +148,6 @@ export default class Html5VideoAnalytics {
     } else {
       // Accumulate playing time but do not report
       this.durationPlaying += (n - (this.lastReportAt || n));
-      this.lastReportAt = n;
     }
   }
 
