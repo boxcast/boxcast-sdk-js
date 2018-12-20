@@ -42,7 +42,6 @@ export default class Html5VideoAnalytics {
     this.durationBuffering = 0;
     this.currentLevelHeight = 0;
     this.headers = {};
-    this.position = 0;
 
     this._wireEvents(this.player);
 

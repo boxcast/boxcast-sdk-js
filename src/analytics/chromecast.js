@@ -14,32 +14,13 @@ export default class ChromecastAnalytics extends Html5VideoAnalytics {
   }
 
   attach(params) {
-    const { playerManager, castOptions } = params;
+    const { playerManager, broadcastInfo } = params;
 
     if (!playerManager) throw Error('playerManager is required');
-    if (!castOptions) throw Error('castOptions is required');
+    if (!broadcastInfo) throw Error('broadcastInfo is required');
 
     this.playerManager = playerManager;
-    this.castOptions = castOptions;
-
-    // The custom receiver doesn't have a good way to figure out which account ID,
-    // broadcast ID, channel ID, etc. are in use. They are passed to us via the
-    // customData of the load request.
-    this.playerManager.setMediaPlaybackInfoHandler((loadRequest, playbackConfig) => {
-      if (loadRequest.media.customData && loadRequest.media.customData.type &&
-            (loadRequest.media.customData.type === 'BOXCAST_METADATA')) {
-        this.broadcastInfo = loadRequest.media.customData.data;
-      }
-      return playbackConfig;
-    });
-
-    let playbackConfig = Object.assign(
-      new this.framework.PlaybackConfig(),
-      this.playerManager.getPlaybackConfig()
-    );
-    playbackConfig.segmentRequestHandler = (requestInfo) => this._handleSegmentRequest(requestInfo);
-    this.castOptions.playbackConfig = playbackConfig;
-
+    this.broadcastInfo = broadcastInfo;
     this.lastReportAt = null;
     this.lastBufferStart = null;
     this.isPlaying = false;
@@ -48,15 +29,21 @@ export default class ChromecastAnalytics extends Html5VideoAnalytics {
     this.durationBuffering = 0;
     this.currentLevelHeight = 0;
     this.headers = {};
-    this.position = 0;
-    this.currentLevelHeight = 0;
 
-    this._wireEvents(this.player);
+    this._wireEvents();
 
     return this;
   }
 
-  _wireEvents(v) {
+  handleSegmentRequest(requestInfo) {
+    // Set the current level height to whatever level we're most recently requesting.
+    if (!requestInfo.url) return;
+    const m = requestInfo.url.match(/\/(\d+)p\/\d+\.ts/);
+    if (!m || !m[1]) return;
+    this.currentLevelHeight = parseInt(m[1], 10);
+  }
+
+  _wireEvents() {
     this.playerManager.addEventListener(this.framework.events.EventType.ENDED, (event) => {
       this._handleNormalOperation();
       this._report('complete');
@@ -68,7 +55,7 @@ export default class ChromecastAnalytics extends Html5VideoAnalytics {
       this._handleBufferingEnd();
     });
     this.playerManager.addEventListener(this.framework.events.EventType.ERROR, (event) => {
-      this._handlePlaybackError(event);
+      this._handleChromecastError(event);
     });
     this.playerManager.addEventListener(this.framework.events.EventType.PAUSE, (event) => {
       this._handleNormalOperation();
@@ -104,19 +91,152 @@ export default class ChromecastAnalytics extends Html5VideoAnalytics {
     });
   }
 
+  _handleChromecastError(event) {
+    if (this.stoppedHACK) {
+      console.warn('An error occurred, but playback is stopped so this should not be a problem', event);
+    } else if (event === null) {
+      console.warn('An error event was fired, but the error was null');
+    } else {
+      let errorObject = {};
+      if (event.detailedErrorCode) {
+        errorObject.code = event.detailedErrorCode;
+        switch (event.detailedErrorCode) {
+          case this.framework.events.DetailedErrorCode.MEDIA_UNKNOWN:
+            errorObject.message = 'MEDIA_UNKNOWN';
+            break;
+          case this.framework.events.DetailedErrorCode.MEDIA_ABORTED:
+            errorObject.message = 'MEDIA_ABORTED';
+            break;
+          case this.framework.events.DetailedErrorCode.MEDIA_DECODE:
+            errorObject.message = 'MEDIA_DECODE';
+            break;
+          case this.framework.events.DetailedErrorCode.MEDIA_NETWORK:
+            errorObject.message = 'MEDIA_NETWORK';
+            break;
+          case this.framework.events.DetailedErrorCode.MEDIA_SRC_NOT_SUPPORTED:
+            errorObject.message = 'MEDIA_SRC_NOT_SUPPORTED';
+            break;
+          case this.framework.events.DetailedErrorCode.SOURCE_BUFFER_FAILURE:
+            errorObject.message = 'SOURCE_BUFFER_FAILURE';
+            break;
+          case this.framework.events.DetailedErrorCode.MEDIAKEYS_UNKNOWN:
+            errorObject.message = 'MEDIAKEYS_UNKNOWN';
+            break;
+          case this.framework.events.DetailedErrorCode.MEDIAKEYS_NETWORK:
+            errorObject.message = 'MEDIAKEYS_NETWORK';
+            break;
+          case this.framework.events.DetailedErrorCode.MEDIAKEYS_UNSUPPORTED:
+            errorObject.message = 'MEDIAKEYS_UNSUPPORTED';
+            break;
+          case this.framework.events.DetailedErrorCode.MEDIAKEYS_WEBCRYPTO:
+            errorObject.message = 'MEDIAKEYS_WEBCRYPTO';
+            break;
+          case this.framework.events.DetailedErrorCode.NETWORK_UNKNOWN:
+            errorObject.message = 'NETWORK_UNKNOWN';
+            break;
+          case this.framework.events.DetailedErrorCode.SEGMENT_NETWORK:
+            errorObject.message = 'SEGMENT_NETWORK';
+            break;
+          case this.framework.events.DetailedErrorCode.HLS_NETWORK_MASTER_PLAYLIST:
+            errorObject.message = 'HLS_NETWORK_MASTER_PLAYLIST';
+            break;
+          case this.framework.events.DetailedErrorCode.HLS_NETWORK_PLAYLIST:
+            errorObject.message = 'HLS_NETWORK_PLAYLIST';
+            break;
+          case this.framework.events.DetailedErrorCode.HLS_NETWORK_NO_KEY_RESPONSE:
+            errorObject.message = 'HLS_NETWORK_NO_KEY_RESPONSE';
+            break;
+          case this.framework.events.DetailedErrorCode.HLS_NETWORK_KEY_LOAD:
+            errorObject.message = 'HLS_NETWORK_KEY_LOAD';
+            break;
+          case this.framework.events.DetailedErrorCode.HLS_NETWORK_INVALID_SEGMENT:
+            errorObject.message = 'HLS_NETWORK_INVALID_SEGMENT';
+            break;
+          case this.framework.events.DetailedErrorCode.HLS_SEGMENT_PARSING:
+            errorObject.message = 'HLS_SEGMENT_PARSING';
+            break;
+          case this.framework.events.DetailedErrorCode.DASH_NETWORK:
+            errorObject.message = 'DASH_NETWORK';
+            break;
+          case this.framework.events.DetailedErrorCode.DASH_NO_INIT:
+            errorObject.message = 'DASH_NO_INIT';
+            break;
+          case this.framework.events.DetailedErrorCode.SMOOTH_NETWORK:
+            errorObject.message = 'SMOOTH_NETWORK';
+            break;
+          case this.framework.events.DetailedErrorCode.SMOOTH_NO_MEDIA_DATA:
+            errorObject.message = 'SMOOTH_NO_MEDIA_DATA';
+            break;
+          case this.framework.events.DetailedErrorCode.MANIFEST_UNKNOWN:
+            errorObject.message = 'MANIFEST_UNKNOWN';
+            break;
+          case this.framework.events.DetailedErrorCode.HLS_MANIFEST_MASTER:
+            errorObject.message = 'HLS_MANIFEST_MASTER';
+            break;
+          case this.framework.events.DetailedErrorCode.HLS_MANIFEST_PLAYLIST:
+            errorObject.message = 'HLS_MANIFEST_PLAYLIST';
+            break;
+          case this.framework.events.DetailedErrorCode.DASH_MANIFEST_UNKNOWN:
+            errorObject.message = 'DASH_MANIFEST_UNKNOWN';
+            break;
+          case this.framework.events.DetailedErrorCode.DASH_MANIFEST_NO_PERIODS:
+            errorObject.message = 'DASH_MANIFEST_NO_PERIODS';
+            break;
+          case this.framework.events.DetailedErrorCode.DASH_MANIFEST_NO_MIMETYPE:
+            errorObject.message = 'DASH_MANIFEST_NO_MIMETYPE';
+            break;
+          case this.framework.events.DetailedErrorCode.DASH_INVALID_SEGMENT_INFO:
+            errorObject.message = 'DASH_INVALID_SEGMENT_INFO';
+            break;
+          case this.framework.events.DetailedErrorCode.SMOOTH_MANIFEST:
+            errorObject.message = 'SMOOTH_MANIFEST';
+            break;
+          case this.framework.events.DetailedErrorCode.SEGMENT_UNKNOWN:
+            errorObject.message = 'SEGMENT_UNKNOWN';
+            break;
+          case this.framework.events.DetailedErrorCode.TEXT_UNKNOWN:
+            errorObject.message = 'TEXT_UNKNOWN';
+            break;
+          case this.framework.events.DetailedErrorCode.APP:
+            errorObject.message = 'APP';
+            break;
+          case this.framework.events.DetailedErrorCode.BREAK_CLIP_LOADING_ERROR:
+            errorObject.message = 'BREAK_CLIP_LOADING_ERROR';
+            break;
+          case this.framework.events.DetailedErrorCode.BREAK_SEEK_INTERCEPTOR_ERROR:
+            errorObject.message = 'BREAK_SEEK_INTERCEPTOR_ERROR';
+            break;
+          case this.framework.events.DetailedErrorCode.IMAGE_ERROR:
+            errorObject.message = 'IMAGE_ERROR';
+            break;
+          case this.framework.events.DetailedErrorCode.LOAD_INTERRUPTED:
+            errorObject.message = 'LOAD_INTERRUPTED';
+            break;
+          case this.framework.events.DetailedErrorCode.LOAD_FAILED:
+            errorObject.message = 'LOAD_FAILED';
+            break;
+          case this.framework.events.DetailedErrorCode.MEDIA_ERROR_MESSAGE:
+            errorObject.message = 'MEDIA_ERROR_MESSAGE';
+            break;
+          case this.framework.events.DetailedErrorCode.GENERIC:
+            errorObject.message = 'GENERIC';
+            break;
+        }
+      }
+      if (event.error) {
+        try {
+          errorObject.data = JSON.stringify(event.error);
+        } catch (e) {}
+      }
+      this._report('error', Object.assign({}, this.browserState, {error_object: errorObject}));
+    }
+  }
+
   _getCurrentTime() {
     return this.playerManager.getCurrentTimeSec();
   }
 
   _getCurrentLevelHeight() {
     return this.currentLevelHeight;
-  }
-
-  _handleSegmentRequest(requestInfo) {
-    // Set the current level height to whatever level we're most recently requesting.
-    if (!requestInfo.url) return;
-    const m = requestInfo.url.match(/\/(\d+)p\/\d+\.ts/);
-    if (!m || !m[1]) return;
-    this.currentLevelHeight = parseInt(m[1], 10);
   }
 }

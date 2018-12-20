@@ -92,7 +92,7 @@ describe('analytics', () => {
     var impl = analytics.mode('chromecast');
     impl.attach({
       playerManager: playerManager,
-      castOptions: castOptions,
+      broadcastInfo: {},
     });
     expect(impl.isPlaying).to.be.false;
     expect(impl.isBuffering).to.be.false;
