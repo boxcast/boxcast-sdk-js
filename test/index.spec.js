@@ -65,6 +65,38 @@ describe('analytics', () => {
     expect(impl.isPlaying).to.be.false;
     expect(impl.isBuffering).to.be.false;
   });
+  it('should provide a ChromeCast engine', () => {
+    window.cast = {
+      framework: {
+        PlaybackConfig: function() {},
+        events: {
+          EventType: {},
+        }
+      }
+    };
+    var castOptions = {};
+    var broadcastInfo = {
+      account_id: 'a1000',
+      channel_id: 'c1000',
+      id: 'b1000',
+      timeframe: 'past'
+    };
+    var playerManager = {
+      setMediaPlaybackInfoHandler: (handler) => {
+        setTimeout(() => handler({media: {customData: {type: 'BOXCAST_METADATA', data: broadcastInfo}}}), 0);
+      },
+      getPlaybackConfig: () => ({}),
+      addEventListener: (evt, callback) => {},
+      getCurrentTimeSec: () => 42.0,
+    };
+    var impl = analytics.mode('chromecast');
+    impl.attach({
+      playerManager: playerManager,
+      castOptions: castOptions,
+    });
+    expect(impl.isPlaying).to.be.false;
+    expect(impl.isBuffering).to.be.false;
+  });
 });
 
 describe('api integration test', () => {

@@ -9,6 +9,7 @@
 const platform = require('platform');
 const Html5VideoAnalytics = require('./html5.js');
 const VideoJsAnalytics = require('./videojs.js');
+const ChromecastAnalytics = require('./chromecast.js');
 
 var OVERRIDE_STATE = {};
 
@@ -34,6 +35,8 @@ const analytics = {
         return new Html5VideoAnalytics(this.getState());
       case 'video.js':
         return new VideoJsAnalytics(this.getState());
+      case 'chromecast':
+        return new ChromecastAnalytics(this.getState());
     }
     throw Error(`Mode ${mode} not supported`);
   }
