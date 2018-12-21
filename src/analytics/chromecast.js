@@ -87,7 +87,12 @@ export default class ChromecastAnalytics extends Html5VideoAnalytics {
       this._reportTime();
     });
     this.playerManager.addEventListener(this.framework.events.EventType.BUFFERING, (event) => {
-      this._handleBufferingStart();
+      if (event.isBuffering) {
+        this._handleBufferingStart();
+      } else {
+        this._handleNormalOperation();
+        this._handleBufferingEnd();
+      }
     });
   }
 
