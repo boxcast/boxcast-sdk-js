@@ -143,13 +143,10 @@ export default class Html5VideoAnalytics {
       return;
     }
     var n = new Date();
-    if ((n - this.lastReportAt) > TIME_REPORT_INTERVAL_MS) {
-      // Report it to keep server in-sycn
-      this._report('time');
-    } else {
-      // Accumulate playing time but do not report
-      this.durationPlaying += (n - (this.lastReportAt || n));
+    if ((n - this.lastReportAt) <= TIME_REPORT_INTERVAL_MS) {
+      return;
     }
+    this._report('time');
   }
 
   _report(action, options) {
@@ -181,6 +178,9 @@ export default class Html5VideoAnalytics {
     options.duration = Math.round(this.durationPlaying / 1000);
     options.duration_buffering = Math.round(this.durationBuffering / 1000);
     options.videoHeight = this._getCurrentLevelHeight();
+    if (this._getDvrIsUse) {
+      options.dvr = this._getDvrIsUse();
+    }
 
     this._queue.push(options);
     this._dequeue();

@@ -7,6 +7,8 @@
 
 const Html5VideoAnalytics = require('./html5');
 
+const DVR_WINDOW_S = 30;
+
 export default class ChromecastAnalytics extends Html5VideoAnalytics {
   get framework() {
     const cast = window.cast || global.cast;
@@ -244,5 +246,19 @@ export default class ChromecastAnalytics extends Html5VideoAnalytics {
 
   _getCurrentLevelHeight() {
     return this.currentLevelHeight;
+  }
+
+  _getDvrIsUse() {
+    const liveSeekableRange = this.playerManager.getLiveSeekableRange();
+    if (liveSeekableRange && liveSeekableRange.end) {
+      if (liveSeekableRange.end - this.playerManager.getCurrentTimeSec() < DVR_WINDOW_S) {
+        // Within DVR_WINDOW_S seconds of live head, so not DVR
+        return false;
+      }
+      // More than DVR_WINDOW_S seconds behind, so DVR
+      return true;
+    }
+    // Not live, so not DVR
+    return false;
   }
 }
