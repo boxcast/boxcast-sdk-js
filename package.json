@@ -5,6 +5,7 @@
   "main": "lib/boxcast-sdk.js",
   "scripts": {
     "build": "webpack --env dev && webpack --env build && npm run test",
+    "deploy:latest": "npm run build && aws s3 cp ./lib/boxcast-sdk.min.js s3://js.boxcast.com/libs/boxcast-sdk-latest.min.js --profile=prod",
     "dev": "webpack --progress --colors --watch --env dev",
     "test": "mocha --require babel-register --colors ./test/*.spec.js",
     "test:watch": "mocha --require babel-register --colors -w ./test/*.spec.js"
