@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>BoxCast Video.js Example</title>
+    <script src="//js.boxcast.com/libs/boxcast-sdk-latest.min.js"></script>
+    <link href="//vjs.zencdn.net/7.4.1/video-js.css" rel="stylesheet">
+    <script src="//vjs.zencdn.net/7.4.1/video.js"></script>
+    <style>
+    .video-container {
+      border: 1px solid #aaa;
+      margin: 20px auto;
+      max-width: 1200px;
+    }
+    </style>
+  </head>
+  <body>
+
+    <div id="js-video-container" class="video-container">
+       <video id="js-video"
+              class="video-js vjs-16-9"
+              controls preload="auto" width="640" height="264">
+    </div>
+
+    <script type="text/javascript">
+      var BOXCAST_BROADCAST_ID = '777670';
+      var videoContainer = document.querySelector('#js-video-container');
+      var player = videojs('js-video');
+
+      BoxCastSDK.api.broadcasts.get(BOXCAST_BROADCAST_ID).then(function(broadcast) {
+        BoxCastSDK.api.views.get(BOXCAST_BROADCAST_ID).then(function(view) {
+          if (!view.playlist) return;
+          player.src(view.playlist);
+          BoxCastSDK.analytics.mode('video.js').attach({
+            player: player,
+            broadcast: broadcast,
+            channel_id: broadcast.channel_id
+          });
+        });
+      });
+    </script>
+
+  </body>
+</html>
