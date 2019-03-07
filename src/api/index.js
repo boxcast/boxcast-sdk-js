@@ -4,8 +4,10 @@
 //
 
 const axios = require('axios');
+const qs = require('qs');
 
 const API_ROOT = 'https://api.boxcast.com';
+const AUTH_ROOT = 'https://auth.boxcast.com';
 
 function parseList(response) {
   return {
@@ -13,6 +15,8 @@ function parseList(response) {
     data: response.data
   };
 }
+
+var lastAuthToken = null;
 
 const api = {
   broadcasts: {
@@ -44,6 +48,27 @@ const api = {
       }
       return axios.get(`${API_ROOT}/broadcasts/${broadcastId}/view`, {params}).then((response) => response.data);
     }
+  },
+  auth: {
+    authenticate: function (clientId, clientSecret) {
+      return axios({
+        method: 'post',
+        url: `${AUTH_ROOT}/oauth2/token`,
+        headers: {'content-type': 'application/x-www-form-urlencoded'},
+        data: qs.stringify({grant_type: 'client_credentials', scope: 'owner'}),
+        auth: {username: clientId, password: clientSecret},
+      }).then((response) => {
+        var result = response.data;
+        lastAuthToken = result.access_token;
+        return result;
+      });
+    },
+    account: function() {
+      if (!lastAuthToken) {
+        return Promise.reject('Authentication is required');
+      }
+      return axios.get(`${API_ROOT}/account`, {params}).then((response) => response.data);
+    },
   }
 };
 
