@@ -179,4 +179,26 @@ describe('authenticated api integration test', () => {
       }).then(done).catch(done);
     });
   });
+
+  it('should support full CRUD', (done) => {
+    // Step 1 ... auth
+    api.auth.authenticate(clientId, clientSecret).then(() => {
+      // Step 2 ... create new channel
+      return api.auth.channels.create({name: 'Foo'})
+    }).then((channel) => {
+      expect(channel.id).to.be.not.null;
+      expect(channel.name).to.equal('Foo');
+      // Step 3 ... retrieve that channel in full
+      return api.auth.channels.get(channel.id);
+    }).then((channel) => {
+      // Step 4 ... update the channel name
+      return api.auth.channels.update(channel.id, {name: 'Bar'});
+    }).then((channel) => {
+      expect(channel.name).to.equal('Bar');
+      // Step 5 ... delete the channel
+      return api.auth.channels.destroy(channel.id);
+    }).then((response) => {
+      expect(true).to.equal(true)
+    }).then(done).catch(done);
+  });
 });

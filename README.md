@@ -118,18 +118,24 @@ api.auth.authenticate(
   api.auth.account()
     .then((account) => console.log(account));
 
-  api.auth.channels.list({
-    s: 'name', // sort by
-    l: 20,     // page limit
-    p: 0       // page number
-  }).then((r) => console.log(r.pagination, r.data));
+  api.auth.channels.create({
+    name: 'My New Channel'
+  }).then((channel) => {
+    console.log('Created a new channel:', channel);
+
+    api.auth.channels.list({
+        s: 'name', // sort by
+        l: 20,     // page limit
+        p: 0       // page number
+    }).then((r) => console.log('All Channels:', r.pagination, r.data));
+  });
 
   api.auth.broadcasts.list({
     q: 'timeframe:current',
     s: '-starts_at',
     l: 20,
     p: 0
-  }).then((r) => console.log(r.pagination, r.data));
+  }).then((r) => console.log('All Broadcasts:', r.pagination, r.data));
 
   api.auth.broadcasts.get(broadcast_id)
     .then((broadcast) => console.log(broadcast));
