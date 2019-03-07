@@ -115,7 +115,7 @@ api.auth.authenticate(
 ).then((r) => {
   console.log('Authenticated!', r);
 
-  api.auth.account.get()
+  api.auth.account()
     .then((account) => console.log(account));
 
   api.auth.channels.list({
