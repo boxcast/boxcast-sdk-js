@@ -98,19 +98,20 @@ analytics.mode('video.js').attach({
 ## Authenticuated API Queries
 
 Use the `api.auth` object to query the BoxCast API in an authenticated scope, using your
-client credentials generated on the dashboard.  All methods return a promise.  List
-responses contain both pagination information and resulting data.
+API client credentials.  Like the public API quries, all methods return a promise.
 
 Notes:
 
  * When calling `api.auth.authenticate`, an `access_token` is retrieved and stored
    within the global scope of the application.  This must be called each time the
    application is reloaded to obtain a new token.
- * Your API credentials (client ID, secret) are required to access these routes.
+ * Your API credentials (client ID, secret) are required to access these methods, and these
+   values _should never be shared_.  As a result, please do not allow this code to run
+   within a client application in a browser.
 
 ```javascript
 api.auth.authenticate(
-    CLIENT_ID, CLIENT_SECRET
+  CLIENT_ID, CLIENT_SECRET
 ).then((r) => {
   console.log('Authenticated!', r);
 
@@ -139,5 +140,6 @@ api.auth.authenticate(
     extended: true
   }).then((view) => console.log(view));
 
+  api.auth.logout();
 });
 ```

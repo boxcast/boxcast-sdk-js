@@ -3,95 +3,18 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
-const axios = require('axios');
-const qs = require('qs');
-
-const API_ROOT = 'https://api.boxcast.com';
-const AUTH_ROOT = 'https://auth.boxcast.com';
-
-// Global state
-var STATE = {
-  lastAuthToken: null
-};
-
-function parseList(response) {
-  return {
-    pagination: JSON.parse(response.headers['x-pagination'] || '{}'),
-    data: response.data
-  };
-}
-
-function authHeaders() {
-  return {
-    headers: {
-      'Authorization': `Bearer ${STATE.lastAuthToken}`
-    }
-  };
-}
+import BroadcastRoutes from './broadcast_routes';
+import ChannelRoutes from './channel_routes';
+import ViewRoutes from './view_routes';
+import AuthRoutes from './auth_routes';
 
 const api = {
-  broadcasts: {
-    list: function (channelId, params = {}) {
-      if (!channelId) {
-        return Promise.reject('channelId is required');
-      }
-      return axios.get(`${API_ROOT}/channels/${channelId}/broadcasts`, {params}).then(parseList);
-    },
-    get: function (broadcastId) {
-      if (!broadcastId) {
-        return Promise.reject('broadcastId is required');
-      }
-      return axios.get(`${API_ROOT}/broadcasts/${broadcastId}`).then((response) => response.data);
-    }
-  },
-  channels: {
-    list: function (accountId, params = {}) {
-      if (!accountId) {
-        return Promise.reject('accountId is required');
-      }
-      return axios.get(`${API_ROOT}/accounts/${accountId}/channels`, {params}).then(parseList);
-    }
-  },
-  views: {
-    get: function (broadcastId, params = {}) {
-      if (!broadcastId) {
-        return Promise.reject('broadcastId is required');
-      }
-      return axios.get(`${API_ROOT}/broadcasts/${broadcastId}/view`, {params}).then((response) => response.data);
-    }
-  },
-  auth: {
-    logout: function() {
-      STATE.lastAuthToken = null;
-    },
-    authenticate: function (clientId, clientSecret) {
-      return axios({
-        method: 'post',
-        url: `${AUTH_ROOT}/oauth2/token`,
-        headers: {
-          'content-type': 'application/x-www-form-urlencoded'
-        },
-        data: qs.stringify({
-          'grant_type': 'client_credentials',
-          'scope': 'owner'
-        }),
-        auth: {
-          'username': clientId,
-          'password': clientSecret
-        }
-      }).then((response) => {
-        var result = response.data;
-        STATE.lastAuthToken = result.access_token;
-        return result;
-      });
-    },
-    account: function() {
-      if (!STATE.lastAuthToken) {
-        return Promise.reject('Authentication is required');
-      }
-      return axios.get(`${API_ROOT}/account`, authHeaders()).then((response) => response.data);
-    }
-  }
+  // Public API Methods
+  broadcasts: new BroadcastRoutes(),
+  channels: new ChannelRoutes(),
+  views: new ViewRoutes(),
+  // Authenticated API Methods
+  auth: new AuthRoutes()
 };
 
 export default api;

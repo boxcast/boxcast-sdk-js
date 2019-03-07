@@ -67,3 +67,10 @@ export function normalizeError(error, source) {
   }
   return errorObject;
 }
+
+export function parseList(response) {
+  return {
+    pagination: JSON.parse(response.headers['x-pagination'] || '{}'),
+    data: response.data
+  };
+}
