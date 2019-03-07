@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
+import { STATE } from './state';
+
 /* eslint max-len: 0 */
 
 export function getStorage() {
@@ -72,5 +74,13 @@ export function parseList(response) {
   return {
     pagination: JSON.parse(response.headers['x-pagination'] || '{}'),
     data: response.data
+  };
+}
+
+export function authHeaders() {
+  return {
+    headers: {
+      'Authorization': `Bearer ${STATE.lastAuthToken}`
+    }
   };
 }

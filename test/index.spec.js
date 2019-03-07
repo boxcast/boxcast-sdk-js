@@ -156,9 +156,28 @@ describe('authenticated api integration test', () => {
     }).then(done).catch(done);
   });
 
-  it('should support client authentication', (done) => {
-    api.auth.authenticate(clientId, clientSecret).then((result) => {
-      expect(result.access_token).to.be.not.null;
-    }).then(done).catch(done);
+  it('should support querying account', (done) => {
+    api.auth.authenticate(clientId, clientSecret).then(() => {
+      api.auth.account().then((a) => {
+        expect(a.id).to.be.not.null;
+      }).then(done).catch(done);
+    });
+  });
+
+  it('should support querying broadcasts', (done) => {
+    api.auth.authenticate(clientId, clientSecret).then(() => {
+      api.auth.broadcasts.list().then((r) => {
+        expect(r.data.length).to.be.gt(0);
+      }).then(done).catch(done);
+    });
+  });
+
+  it('should support querying channels', (done) => {
+    api.auth.authenticate(clientId, clientSecret).then(() => {
+      api.auth.channels.list().then((r) => {
+        expect(r.data.length).to.be.gt(0);
+      }).then(done).catch(done);
+    });
   });
 });
+// BOXCAST_SDK_JS__TEST_CLIENT_ID="nlsy2wj52usdjob2o7ea" BOXCAST_SDK_JS__TEST_CLIENT_SECRET="omHrwwC7cRZhfKfmvbCyBvPD7wO3adJCP_jSrHqJrSJU7IoxZY8hKT8e2j53dD0omoZJFA9jGDnxW2tG"

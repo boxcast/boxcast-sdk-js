@@ -8,14 +8,9 @@ const qs = require('qs');
 
 import { API_ROOT, AUTH_ROOT } from '../config';
 import { STATE } from '../state';
-
-function authHeaders() {
-  return {
-    headers: {
-      'Authorization': `Bearer ${STATE.lastAuthToken}`
-    }
-  };
-}
+import { authHeaders } from '../utils';
+import AuthBroadcastRoutes from './auth_broadcast_routes';
+import AuthChannelRoutes from './auth_channel_routes';
 
 export default class AuthenticatedRoutes {
 
@@ -53,12 +48,11 @@ export default class AuthenticatedRoutes {
   }
 
   get broadcasts() {
-    // TODO: return authenticated broadcast resources
+    return new AuthBroadcastRoutes(authHeaders());
   }
 
   get channels() {
-    // TODO: return authenticated channel resources
+    return new AuthChannelRoutes(authHeaders());
   }
 
 }
-
