@@ -180,4 +180,3 @@ describe('authenticated api integration test', () => {
     });
   });
 });
-// BOXCAST_SDK_JS__TEST_CLIENT_ID="nlsy2wj52usdjob2o7ea" BOXCAST_SDK_JS__TEST_CLIENT_SECRET="omHrwwC7cRZhfKfmvbCyBvPD7wO3adJCP_jSrHqJrSJU7IoxZY8hKT8e2j53dD0omoZJFA9jGDnxW2tG"
