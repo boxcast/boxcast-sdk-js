@@ -127,3 +127,38 @@ describe('api integration test', () => {
     }).then(done).catch(done);
   });
 });
+
+describe('authenticated api integration test', () => {
+  let clientId = process.env.BOXCAST_SDK_JS__TEST_CLIENT_ID;
+  let clientSecret = process.env.BOXCAST_SDK_JS__TEST_CLIENT_SECRET;
+
+  before(function() {
+    if (!clientId || !clientSecret) {
+      console.warn('You must set the BOXCAST_SDK_JS__TEST_CLIENT_ID and BOXCAST_SDK_JS__TEST_CLIENT_SECRET environment variables to run authenticated tests.');
+      this.skip();
+    } else {
+      api.auth.logout();
+    }
+  });
+
+  it('should require auth', (done) => {
+    api.auth.account().then(() => {
+      throw new Error('should not have succeeded');
+    }).catch((err) => {
+      expect(err.toString()).to.equal('Authentication is required');
+      done();
+    });
+  });
+
+  it('should support client authentication', (done) => {
+    api.auth.authenticate(clientId, clientSecret).then((result) => {
+      expect(result.access_token).to.be.not.null;
+    }).then(done).catch(done);
+  });
+
+  it('should support client authentication', (done) => {
+    api.auth.authenticate(clientId, clientSecret).then((result) => {
+      expect(result.access_token).to.be.not.null;
+    }).then(done).catch(done);
+  });
+});
