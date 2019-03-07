@@ -134,12 +134,6 @@ api.auth.authenticate(
   api.auth.broadcasts.get(broadcast_id)
     .then((broadcast) => console.log(broadcast));
 
-  api.auth.views.get(broadcast_id, {
-    channel_id: channel_id,
-    host: window.location.hostname,
-    extended: true
-  }).then((view) => console.log(view));
-
   api.auth.logout();
 });
 ```
