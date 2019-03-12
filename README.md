@@ -95,7 +95,7 @@ analytics.mode('video.js').attach({
 });
 ```
 
-## Authenticuated API Queries
+## Authenticated API Queries
 
 Use the `api.auth` object to query the BoxCast API in an authenticated scope, using your
 API client credentials.  Like the public API quries, all methods return a promise.
