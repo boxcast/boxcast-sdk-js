@@ -24,6 +24,7 @@ export default class ReactNativeVideoAnalytics {
 
     if (!broadcast) throw Error('broadcast is required');
     if (!AsyncStorage) throw Error('AsyncStorage is required');
+    this.storage = AsyncStorage;
 
     this.broadcastInfo = {
       channel_id: channel_id || broadcast.channel_id,
@@ -70,7 +71,6 @@ export default class ReactNativeVideoAnalytics {
   }
 
   _onProgress(evt) {
-    console.log('onProgress:', evt);
     this._lastProgressTimestamp = evt.currentTime;
     this._reportTime();
   }
