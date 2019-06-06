@@ -5,15 +5,13 @@
 
 /* eslint camelcase: 0 */
 
-const { uuid, normalizeError, getStorage } = require('../utils');
+const { uuid, normalizeError } = require('../utils');
 const axios = require('axios');
 
 const METRICS_URL = 'https://metrics.boxcast.com/player/interaction';
 const PLAYING_STATES = 'play'.split(' ');
 const STOPPED_STATES = 'pause buffer complete error'.split(' ');
 const TIME_REPORT_INTERVAL_MS = 60000;
-
-const storage = getStorage();
 
 export default class ReactNativeVideoAnalytics {
   constructor(state) {
@@ -22,9 +20,10 @@ export default class ReactNativeVideoAnalytics {
   }
 
   attach(params) {
-    const { broadcast, channel_id } = params;
+    const { broadcast, channel_id, AsyncStorage } = params;
 
     if (!broadcast) throw Error('broadcast is required');
+    if (!AsyncStorage) throw Error('AsyncStorage is required');
 
     this.broadcastInfo = {
       channel_id: channel_id || broadcast.channel_id,
@@ -123,11 +122,11 @@ export default class ReactNativeVideoAnalytics {
     }
   }
 
-  _setup() {
-    var viewerId = storage.getItem('boxcast-viewer-id', null);
+  async _setup() {
+    var viewerId = await this.storage.getItem('boxcast-viewer-id');
     if (!viewerId) {
       viewerId = uuid().replace(/-/g, '');
-      storage.setItem('boxcast-viewer-id', viewerId);
+      this.storage.setItem('boxcast-viewer-id', viewerId);
     }
     this.headers = Object.assign({
       view_id: uuid().replace(/-/g, ''),
@@ -146,9 +145,9 @@ export default class ReactNativeVideoAnalytics {
     this._report('time');
   }
 
-  _report(action, options) {
+  async _report(action, options) {
     if (!this.isSetup) {
-      this._setup();
+      await this._setup();
       this.isSetup = true; // avoid infinite loop
       this._report('setup', this.browserState);
     }
