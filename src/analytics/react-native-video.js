@@ -21,7 +21,7 @@ export default class ReactNativeVideoAnalytics {
     this._queue = [];
   }
 
-  attach(params) {
+  async attach(params) {
     const { broadcast, channel_id, AsyncStorage, debug } = params;
 
     if (!broadcast) throw Error('broadcast is required');
@@ -45,6 +45,8 @@ export default class ReactNativeVideoAnalytics {
     this.headers = {};
     this.isSetup = false;
     this._bufferTimeoutHandle = null;
+
+    await this._initViewerID();
 
     return this;
   }
@@ -134,7 +136,7 @@ export default class ReactNativeVideoAnalytics {
     }
   }
 
-  async _setup() {
+  async _initViewerID() {
     var viewerId = await this.storage.getItem('boxcast-viewer-id');
     if (!viewerId) {
       viewerId = uuid().replace(/-/g, '');
@@ -157,9 +159,8 @@ export default class ReactNativeVideoAnalytics {
     this._report('time');
   }
 
-  async _report(action, options) {
+  _report(action, options) {
     if (!this.isSetup) {
-      await this._setup();
       this.isSetup = true; // avoid infinite loop
       this._report('setup', this.browserState);
     }
