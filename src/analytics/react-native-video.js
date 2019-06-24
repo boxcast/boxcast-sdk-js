@@ -121,7 +121,7 @@ export default class ReactNativeVideoAnalytics {
     this.isBuffering = false;
     this.lastBufferStart = null;
     clearTimeout(this._bufferTimeoutHandle);
-    this._bufferTimeoutHandle = nulll;
+    this._bufferTimeoutHandle = null;
     this.debug && console.log('[analytics] Detected end of buffering');
   }
 
