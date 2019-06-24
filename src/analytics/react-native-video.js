@@ -11,6 +11,7 @@ const axios = require('axios');
 const METRICS_URL = 'https://metrics.boxcast.com/player/interaction';
 const PLAYING_STATES = 'play'.split(' ');
 const STOPPED_STATES = 'pause buffer complete error'.split(' ');
+const DOUBLE_REPORT_DEBOUNCE_MIN_MS = 1000;
 const TIME_REPORT_INTERVAL_MS = 60000;
 const BUFFERING_MIN_TIME_TO_REPORT_MS = 1000;
 
@@ -33,6 +34,7 @@ export default class ReactNativeVideoAnalytics {
       is_live: (broadcast.timeframe === 'current'),
       broadcast_id: broadcast.id
     };
+    this.lastAction = null;
     this.lastReportAt = null;
     this.lastBufferStart = null;
     this.isPlaying = false;
@@ -97,7 +99,6 @@ export default class ReactNativeVideoAnalytics {
     } else if (evt.playbackRate === 1) {
       // rate == 1 --> play
       this._report('play');
-      this.isPlaying = true;
       this._handleBufferingEnd();
     }
   }
@@ -163,9 +164,8 @@ export default class ReactNativeVideoAnalytics {
       this._report('setup', this.browserState);
     }
 
-    var n = new Date();
-
     // Accumulate the playing/buffering counters
+    var n = new Date();
     if (this.isPlaying) {
       this.durationPlaying += (n - (this.lastReportAt || n));
     }
@@ -173,7 +173,14 @@ export default class ReactNativeVideoAnalytics {
       this.durationBuffering += (n - (this.lastBufferStart || n));
     }
     this.isPlaying = PLAYING_STATES.indexOf(action) >= 0 || (this.isPlaying && !(STOPPED_STATES.indexOf(action) >= 0));
+
+    // Debounce if triggering same report again (often happens with multiple "play"s during buffering)
+    if (action === this.lastAction && (n - (this.lastReportAt || n)) < DOUBLE_REPORT_DEBOUNCE_MIN_MS) {
+      this.debug && console.log(`[analytics] Ignoring ${action} due to debounce on last report`);
+      return;
+    }
     this.lastReportAt = n;
+    this.lastAction = action;
 
     options = options || {};
     options = Object.assign({}, this.headers, options);
