@@ -12,6 +12,7 @@ const METRICS_URL = 'https://metrics.boxcast.com/player/interaction';
 const PLAYING_STATES = 'play'.split(' ');
 const STOPPED_STATES = 'pause buffer complete error'.split(' ');
 const TIME_REPORT_INTERVAL_MS = 60000;
+const BUFFERING_MIN_TIME_TO_REPORT_MS = 1000;
 
 export default class ReactNativeVideoAnalytics {
   constructor(state) {
@@ -20,12 +21,12 @@ export default class ReactNativeVideoAnalytics {
   }
 
   attach(params) {
-    const { broadcast, channel_id, AsyncStorage } = params;
+    const { broadcast, channel_id, AsyncStorage, debug } = params;
 
     if (!broadcast) throw Error('broadcast is required');
     if (!AsyncStorage) throw Error('AsyncStorage is required');
     this.storage = AsyncStorage;
-
+    this.debug = debug;
     this.broadcastInfo = {
       channel_id: channel_id || broadcast.channel_id,
       account_id: broadcast.account_id,
@@ -41,6 +42,7 @@ export default class ReactNativeVideoAnalytics {
     this.currentLevelHeight = 0;
     this.headers = {};
     this.isSetup = false;
+    this._bufferTimeoutHandle = null;
 
     return this;
   }
@@ -57,17 +59,20 @@ export default class ReactNativeVideoAnalytics {
   }
 
   _onBuffer(evt) {
-    console.log('onBuffer:', evt);
-    this._handleBufferingStart();
+    if (evt.isBuffering) {
+      this._handleBufferingStart();
+    } else {
+      this._handleBufferingEnd();
+    }
   }
 
   _onError(evt) {
-    console.log('onError:', evt);
+    console.warn('onError:', evt);
     this._handlePlaybackError(evt);
   }
 
   _onLoad(evt) {
-    console.log('onLoad:', evt);
+    this.debug && console.log('onLoad:', evt);
   }
 
   _onProgress(evt) {
@@ -76,7 +81,6 @@ export default class ReactNativeVideoAnalytics {
   }
 
   _onEnd(evt) {
-    console.log('onEnd:', evt);
     this._report('complete');
     this._handleBufferingEnd();
   }
@@ -85,7 +89,6 @@ export default class ReactNativeVideoAnalytics {
     // XXX: This is the primary trigger for knowing play/buffer/stall.  It goes
     // from 0<->1 depending on what is happening. The other events do not appear
     // to be reliable as of react-native-video v4.3.1
-    console.log('onPlaybackRateChange:', evt);
 
     if (evt.playbackRate === 0) {
       // rate == 0 --> pause
@@ -106,12 +109,20 @@ export default class ReactNativeVideoAnalytics {
   _handleBufferingStart() {
     this.isBuffering = true;
     this.lastBufferStart = this.lastBufferStart || new Date();
-    this._report('buffer');
+    if (this._bufferTimeoutHandle == null) {
+      this.debug && console.log('[analytics] Detected start of buffering');
+      this._bufferTimeoutHandle = setTimeout(() => {
+        this.isBuffering && this._report('buffer');
+      }, BUFFERING_MIN_TIME_TO_REPORT_MS);
+    }
   }
 
   _handleBufferingEnd() {
     this.isBuffering = false;
     this.lastBufferStart = null;
+    clearTimeout(this._bufferTimeoutHandle);
+    this._bufferTimeoutHandle = nulll;
+    this.debug && console.log('[analytics] Detected end of buffering');
   }
 
   _handlePlaybackError(error) {
@@ -183,7 +194,9 @@ export default class ReactNativeVideoAnalytics {
     var requeue = [];
 
     this._queue.forEach((options) => {
-      axios.post(METRICS_URL, options).catch((error) => {
+      axios.post(METRICS_URL, options).then(() => {
+        this.debug && console.log('[analytics] Posted: ', options);
+      }).catch((error) => {
         options.__attempts = (options.__attempts || 0) + 1;
         if (options.__attempts <= 5) {
           console.error('Unable to post metrics; will retry', error, options);
