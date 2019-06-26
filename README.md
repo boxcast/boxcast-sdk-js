@@ -12,6 +12,7 @@ See Related:
  * [BoxCast Embedded Player Documentation](http://boxcast.github.io/boxcast_js_docs/)
  * [BoxCast Example Video Portal](https://github.com/boxcast/example_video_portal_vuejs)
  * [BoxCast API Documentation](http://boxcast.github.io/boxcast_api/)
+ * [BoxCast SDK for React Native](https://github.com/boxcast/boxcast-sdk-react-native)
 
 ## Getting Started
 
