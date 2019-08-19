@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+### v1.3.2 on 2019-08-19
+
+* Fix React Native crash caused by missing window.location.hostname #6
+
 ### v1.3.0 on 2019-06-26
 
 * Add support for react-native-video analytics implementations #5
