@@ -14,6 +14,18 @@ const ReactNativeVideoAnalytics = require('./react-native-video.js');
 
 var OVERRIDE_STATE = {};
 
+function guessHost() {
+  try {
+    return window.location.hostname;
+  } catch (e) {
+    return '';
+  }
+}
+
+function guessOS() {
+  return (platform.os || '').toString();
+}
+
 const analytics = {
   configure: function(params) {
     OVERRIDE_STATE = params;
@@ -21,8 +33,8 @@ const analytics = {
   },
   getState: function() {
     var browserState = {
-      host: window.location.hostname,
-      os: (platform.os || '').toString(),
+      host: guessHost(),
+      os: guessOS(),
       browser_name: platform.name,
       browser_version: platform.version,
       player_version: `boxcast-sdk-js v${NPM_VERSION}`
