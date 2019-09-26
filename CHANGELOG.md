@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+### v1.3.3 on 2019-09-26
+
+* Fix React Native crash caused by error serialization #9
+
 ### v1.3.2 on 2019-08-19
 
 * Fix React Native crash caused by missing window.location.hostname #6
