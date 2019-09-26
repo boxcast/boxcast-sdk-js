@@ -70,6 +70,19 @@ export function normalizeError(error, source) {
   return errorObject;
 }
 
+export function normalizeAxiosError(error) {
+  // Error could be nil, or it could be a response-like object, or it could
+  // contain a nested response :(
+  if (!error) {
+    return 'Unknown error';
+  } else if (error.response && error.response.data) {
+    return error.response.data;
+  } else if (error.data) {
+    return error.data;
+  }
+  return error;
+}
+
 export function parseList(response) {
   return {
     pagination: JSON.parse(response.headers['x-pagination'] || '{}'),

@@ -5,7 +5,7 @@
 
 /* eslint camelcase: 0 */
 
-const { uuid, normalizeError } = require('../utils');
+const { uuid, normalizeError, normalizeAxiosError } = require('../utils');
 const axios = require('axios');
 
 const METRICS_URL = 'https://metrics.boxcast.com/player/interaction';
@@ -207,10 +207,10 @@ export default class ReactNativeVideoAnalytics {
       }).catch((error) => {
         options.__attempts = (options.__attempts || 0) + 1;
         if (options.__attempts <= 5) {
-          console.error('Unable to post metrics; will retry', error, options);
+          console.warn('Unable to post metrics; will retry', normalizeAxiosError(error), options);
           requeue.push(options);
         } else {
-          console.error('Unable to post metrics; will not retry', error, options);
+          console.warn('Unable to post metrics; will not retry', normalizeAxiosError(error), options);
         }
       });
     });
