@@ -158,12 +158,13 @@ export default class Html5VideoAnalytics {
 
     var n = new Date();
 
-    // Accumulate the playing/buffering counters
     if (this.isPlaying) {
+      // Accumulate the playing counter stat between report intervals
       this.durationPlaying += (n - (this.lastReportAt || n));
     }
     if (this.isBuffering) {
-      this.durationBuffering += (n - (this.lastBufferStart || n));
+      // Buffering stat is absolute (*not* accumulated between report intervals)
+      this.durationBuffering = (n - (this.lastBufferStart || n));
     }
     this.isPlaying = PLAYING_STATES.indexOf(action) >= 0 || (this.isPlaying && !(STOPPED_STATES.indexOf(action) >= 0));
     this.lastReportAt = n;

@@ -168,10 +168,12 @@ export default class ReactNativeVideoAnalytics {
     // Accumulate the playing/buffering counters
     var n = new Date();
     if (this.isPlaying) {
+      // Accumulate the playing counter stat between report intervals
       this.durationPlaying += (n - (this.lastReportAt || n));
     }
     if (this.isBuffering) {
-      this.durationBuffering += (n - (this.lastBufferStart || n));
+      // Buffering stat is absolute (*not* accumulated between report intervals)
+      this.durationBuffering = (n - (this.lastBufferStart || n));
     }
     this.isPlaying = PLAYING_STATES.indexOf(action) >= 0 || (this.isPlaying && !(STOPPED_STATES.indexOf(action) >= 0));
 
