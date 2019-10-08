@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+### v1.3.4 on 2019-10-08
+
+* Fix reported buffering calculation #10
+
 ### v1.3.3 on 2019-09-26
 
 * Fix React Native crash caused by error serialization #9
