@@ -39,7 +39,8 @@ export default class Html5VideoAnalytics {
     this.isPlaying = false;
     this.isBuffering = false;
     this.durationPlaying = 0;
-    this.durationBuffering = 0;
+    this.activeBufferingDuration = 0;
+    this.totalDurationBuffering = 0;
     this.currentLevelHeight = 0;
     this.headers = {};
     this.isSetup = false;
@@ -114,6 +115,11 @@ export default class Html5VideoAnalytics {
   _handleBufferingEnd() {
     this.isBuffering = false;
     this.lastBufferStart = null;
+
+    // When done buffering, accumulate the time since it started buffering and
+    // reset the active buffering timer.
+    this.totalDurationBuffering += this.activeBufferingDuration;
+    this.activeBufferingDuration = 0;
   }
 
   _handlePlaybackError(error) {
@@ -163,8 +169,8 @@ export default class Html5VideoAnalytics {
       this.durationPlaying += (n - (this.lastReportAt || n));
     }
     if (this.isBuffering) {
-      // Buffering stat is absolute (*not* accumulated between report intervals)
-      this.durationBuffering = (n - (this.lastBufferStart || n));
+      // The active buffering stat is absolute (*not* accumulated between report intervals)
+      this.activeBufferingDuration = (n - (this.lastBufferStart || n));
     }
     this.isPlaying = PLAYING_STATES.indexOf(action) >= 0 || (this.isPlaying && !(STOPPED_STATES.indexOf(action) >= 0));
     this.lastReportAt = n;
@@ -177,7 +183,7 @@ export default class Html5VideoAnalytics {
     options.action = action;
     options.position = this._getCurrentTime();
     options.duration = Math.round(this.durationPlaying / 1000);
-    options.duration_buffering = Math.round(this.durationBuffering / 1000);
+    options.duration_buffering = Math.round((this.totalDurationBuffering + this.activeBufferingDuration) / 1000);
     options.videoHeight = this._getCurrentLevelHeight();
     if (this._getDvrIsUse) {
       options.dvr = this._getDvrIsUse();

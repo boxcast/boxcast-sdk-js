@@ -26,7 +26,8 @@ export default class VideoJsAnalytics extends Html5VideoAnalytics {
     this.isPlaying = false;
     this.isBuffering = false;
     this.durationPlaying = 0;
-    this.durationBuffering = 0;
+    this.activeBufferingDuration = 0;
+    this.totalDurationBuffering = 0;
     this.currentLevelHeight = 0;
     this.headers = {};
     this.isSetup = false;
