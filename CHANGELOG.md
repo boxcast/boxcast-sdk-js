@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+### v1.3.6 on 2019-11-06
+
+* Security updates for npm dependencies
+
 ### v1.3.5 on 2019-11-06
 
 * Use a monotonic clock to accumulate playing/buffering time #11
