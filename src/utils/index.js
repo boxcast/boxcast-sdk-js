@@ -3,6 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
+import Clock from './clock';
+export { Clock };
+
+import MonotonicClock from './monotonic_clock';
+export { MonotonicClock };
+
 import { STATE } from './state';
 
 /* eslint max-len: 0 */

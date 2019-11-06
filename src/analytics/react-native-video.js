@@ -5,7 +5,7 @@
 
 /* eslint camelcase: 0 */
 
-const { uuid, normalizeError, normalizeAxiosError } = require('../utils');
+const { uuid, normalizeError, normalizeAxiosError, Clock, MonotonicClock } = require('../utils');
 const axios = require('axios');
 
 const METRICS_URL = 'https://metrics.boxcast.com/player/interaction';
@@ -112,7 +112,7 @@ export default class ReactNativeVideoAnalytics {
 
   _handleBufferingStart() {
     this.isBuffering = true;
-    this.lastBufferStart = this.lastBufferStart || new Date();
+    this.lastBufferStart = this.lastBufferStart || MonotonicClock.now();
     if (this._bufferTimeoutHandle == null) {
       this.debug && console.log('[analytics] Detected start of buffering');
       this._bufferTimeoutHandle = setTimeout(() => {
@@ -159,7 +159,7 @@ export default class ReactNativeVideoAnalytics {
     if (!this.isSetup || !this.isPlaying) {
       return;
     }
-    var n = new Date();
+    var n = MonotonicClock.now();
     if ((n - this.lastReportAt) <= TIME_REPORT_INTERVAL_MS) {
       return;
     }
@@ -173,7 +173,7 @@ export default class ReactNativeVideoAnalytics {
     }
 
     // Accumulate the playing/buffering counters
-    var n = new Date();
+    var n = MonotonicClock.now();
     if (this.isPlaying) {
       // Accumulate the playing counter stat between report intervals
       this.durationPlaying += (n - (this.lastReportAt || n));
@@ -192,11 +192,12 @@ export default class ReactNativeVideoAnalytics {
     this.lastReportAt = n;
     this.lastAction = action;
 
+    let c = Clock.now();
     options = options || {};
     options = Object.assign({}, this.headers, options);
-    options.timestamp = n.toISOString();
-    options.hour_of_day = n.getHours(); // hour-of-day in local time
-    options.day_of_week = n.getDay();
+    options.timestamp = c.toISOString();
+    options.hour_of_day = c.getHours(); // hour-of-day in local time
+    options.day_of_week = c.getDay();
     options.action = action;
     options.position = this._getCurrentTime();
     options.duration = Math.round(this.durationPlaying / 1000);
