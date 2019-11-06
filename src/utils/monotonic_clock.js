@@ -10,7 +10,8 @@ var supportsPerformanceAPI = null;
 export default class MonotonicClock {
   static now() {
     if (supportsPerformanceAPI === null) {
-      // This code should only run on the first call to this function to evaluate whether or not the performance API is supported.
+      // This code should only run on the first call to this function to evaluate whether or not the performance API is
+      // supported.
       supportsPerformanceAPI = !!(window.performance && window.performance.now);
       if (supportsPerformanceAPI) {
         // Test it out... let's make sure it doesn't explode
@@ -28,8 +29,7 @@ export default class MonotonicClock {
 
     if (supportsPerformanceAPI) {
       return window.performance.now();
-    } else {
-      return Clock.now().getTime();
     }
+    return Clock.now().getTime();
   }
-} 
+}

@@ -9,7 +9,7 @@ export { Clock };
 import MonotonicClock from './monotonic_clock';
 export { MonotonicClock };
 
-import { STATE } from './state';
+import { STATE } from '../state';
 
 /* eslint max-len: 0 */
 
