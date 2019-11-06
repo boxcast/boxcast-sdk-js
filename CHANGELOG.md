@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+### v1.3.5 on 2019-11-06
+
+* Use a monotonic clock to accumulate playing/buffering time #11
+
 ### v1.3.4 on 2019-10-08
 
 * Fix reported buffering calculation #10
