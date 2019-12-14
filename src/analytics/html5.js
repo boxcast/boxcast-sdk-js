@@ -5,7 +5,7 @@
 
 /* eslint camelcase: 0 */
 
-const { uuid, normalizeError, normalizeAxiosError, getStorage, Clock, MonotonicClock } = require('../utils');
+const { uuid, normalizeError, normalizeAxiosError, getStorage, Clock, MonotonicClock, throttle } = require('../utils');
 const axios = require('axios');
 
 const METRICS_URL = 'https://metrics.boxcast.com/player/interaction';
@@ -44,7 +44,7 @@ export default class Html5VideoAnalytics {
     this.currentLevelHeight = 0;
     this.headers = {};
     this.isSetup = false;
-
+    this._handleBufferingStartThrottled = throttle(this._handleBufferingStart, 15000);
     this._wireEvents(this.player);
 
     return this;
@@ -86,11 +86,17 @@ export default class Html5VideoAnalytics {
       this._reportTime();
     }, true);
     v.addEventListener('stalled', () => {
-      this._handleBufferingStart();
+      if (!this._isPlaying()) {
+        this._handleBufferingStartThrottled();
+      }
     }, true);
     v.addEventListener('waiting', () => {
-      this._handleBufferingStart();
+      this._handleBufferingStartThrottled();
     }, true);
+  }
+
+  _isPlaying() {
+    return !!(this.player.currentTime > 0 && !this.player.paused && !this.player.ended && this.player.readyState > 2);
   }
 
   _getCurrentTime() {

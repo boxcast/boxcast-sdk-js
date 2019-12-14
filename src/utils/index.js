@@ -103,3 +103,20 @@ export function authHeaders() {
     }
   };
 }
+
+export function throttle (func, interval) {
+  var timeout;
+  return function() {
+    console.log('timeout', timeout);
+    var context = this, args = arguments;
+    var later = function () {
+      console.log('later');
+      timeout = false;
+    };
+    if (!timeout) {
+      func.apply(context, args);
+      timeout = true;
+      setTimeout(later, interval);
+    }
+  };
+}
