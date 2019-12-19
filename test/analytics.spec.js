@@ -88,4 +88,49 @@ describe('analytics', () => {
     expect(impl.isPlaying).to.be.false;
     expect(impl.isBuffering).to.be.false;
   });
+  it('should handle buffering events', (done) => {
+    // Mock the video.addEventListener function to manually fire events
+    var mockEventListeners = {};
+    function mockAddEventListener(evtName, callback) {
+      mockEventListeners[evtName] = callback;
+    }
+    var video = document.createElement('video');
+    video.addEventListener = mockAddEventListener;
+
+    // Wire up the analytics implementation
+    var impl = analytics.mode('html5');
+    impl.attach({
+      video: video,
+      broadcast: {
+        account_id: 'a1000',
+        channel_id: 'c1000',
+        id: 'b1000',
+        timeframe: 'past'
+      }
+    });
+
+    // Mock the analytics._report function to track order of calls
+    var mockReportCalls = [];
+    function mockReport(action) {
+      mockReportCalls.push(action);
+    }
+    impl._report = mockReport;
+
+    // Now simulate normal playback behavior
+    mockEventListeners['play']();
+    mockEventListeners['playing']();
+    expect(impl.isPlaying).to.be.true;
+    expect(impl.isBuffering).to.be.false;
+    expect(mockReportCalls).to.deep.equal(['play']);
+    mockReportCalls = [];
+
+    // Now simulate buffering
+    mockEventListeners['stalled']();
+    expect(impl.isBuffering).to.be.true;
+    expect(mockReportCalls.length).to.equal(0); // should be delayed
+    setTimeout(() => {
+      expect(mockReportCalls).to.deep.equal(['buffer']);
+      done();
+    }, 600);
+  });
 });

@@ -93,6 +93,10 @@ export default class Html5VideoAnalytics {
     }, true);
   }
 
+  _isActuallyPlaying() {
+    return !!(this.player.currentTime > 0 && !this.player.paused && !this.player.ended && this.player.readyState > 2);
+  }
+
   _getCurrentTime() {
     return this.player.currentTime;
   }
@@ -105,7 +109,22 @@ export default class Html5VideoAnalytics {
   _handleBufferingStart() {
     this.isBuffering = true;
     this.lastBufferStart = this.lastBufferStart || MonotonicClock.now();
-    this._report('buffer');
+
+    // Make sure it *stays* buffering for at least 500ms before reporting
+    if (this._waitForBufferingCheck) {
+      return;
+    }
+    this._waitForBufferingCheck = setTimeout(() => {
+      this._waitForBufferingCheck = null;
+      if (!this.isBuffering) {
+        return;
+      }
+      if (this._isActuallyPlaying()) {
+        this._handleBufferingEnd();
+        return;
+      }
+      this._report('buffer');
+    }, 500);
   }
 
   _handleNormalOperation() {
@@ -115,6 +134,9 @@ export default class Html5VideoAnalytics {
   _handleBufferingEnd() {
     this.isBuffering = false;
     this.lastBufferStart = null;
+
+    clearTimeout(this._waitForBufferingCheck);
+    this._waitForBufferingCheck = null;
 
     // When done buffering, accumulate the time since it started buffering and
     // reset the active buffering timer.
