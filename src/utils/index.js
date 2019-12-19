@@ -39,6 +39,16 @@ export function uuid() {
   return r(8) + '-' + r(4) + '-' + r(4) + '-' + r(4) + '-' + r(12);
 }
 
+export function cleanQuotesFromViewerID(viewerId) {
+  if (!viewerId || viewerId.length < 3) {
+    return viewerId || '';
+  }
+  if (viewerId[0] === '"' && viewerId[viewerId.length - 1] === '"') {
+    return viewerId.substring(1, viewerId.length - 1);
+  }
+  return viewerId;
+}
+
 export function normalizeError(error, source) {
   // This error object could come from various sources, depending on playback
   // and circumstance:

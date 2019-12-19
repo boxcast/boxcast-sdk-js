@@ -5,7 +5,8 @@
 
 /* eslint camelcase: 0 */
 
-const { uuid, normalizeError, normalizeAxiosError, getStorage, Clock, MonotonicClock } = require('../utils');
+const { uuid, normalizeError, normalizeAxiosError, getStorage,
+  cleanQuotesFromViewerID, Clock, MonotonicClock } = require('../utils');
 const axios = require('axios');
 
 const METRICS_URL = 'https://metrics.boxcast.com/player/interaction';
@@ -157,7 +158,7 @@ export default class Html5VideoAnalytics {
   _setup() {
     var viewerId = storage.getItem('boxcast-viewer-id', null);
     if (!viewerId) {
-      viewerId = uuid().replace(/-/g, '');
+      viewerId = cleanQuotesFromViewerID(uuid().replace(/-/g, ''));
       storage.setItem('boxcast-viewer-id', viewerId);
     }
     this.headers = Object.assign({
