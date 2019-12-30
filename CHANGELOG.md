@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+### v1.3.7 on 2019-12-30
+
+* Fix buffering analytics for FireTV #18
+
 ### v1.3.6 on 2019-11-06
 
 * Security updates for npm dependencies
