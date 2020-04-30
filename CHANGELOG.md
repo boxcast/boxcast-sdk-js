@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+### v1.3.8 on 2020-04-30
+
+* Do not attempt to present playlist if not reporting live or recorded [DS-453] [#20]
+
 ### v1.3.7 on 2019-12-30
 
 * Fix buffering analytics for FireTV #18
