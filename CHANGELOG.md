@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+### v1.3.9 on 2021-01-05
+
+* Updated dependencies (webpack v5)
+
 ### v1.3.8 on 2020-04-30
 
 * Do not attempt to present playlist if not reporting live or recorded [DS-453] [#20]
