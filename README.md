@@ -1,6 +1,6 @@
 # BoxCast SDK for JavaScript
 
-![Travis](https://travis-ci.org/boxcast/boxcast-sdk-js.svg?branch=master)
+[![Build Status](https://travis-ci.org/boxcast/boxcast-sdk-js.svg?branch=master)](https://travis-ci.org/boxcast/boxcast-sdk-js)
 
 This library can be used for custom integration projects where the standard BoxCast embedded
 player may not suffice.
