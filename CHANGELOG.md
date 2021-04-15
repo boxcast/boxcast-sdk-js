@@ -1,5 +1,10 @@
 ## CHANGELOG
 
+### v1.4.10 on 2021-04-15
+
+* Support re-attaching analytics to a new broadcast #28
+* Update JW Player example to use a playlist #28
+
 ### v1.3.9 on 2021-01-05
 
 * Updated dependencies (webpack v5)
