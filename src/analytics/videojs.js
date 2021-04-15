@@ -32,52 +32,71 @@ export default class VideoJsAnalytics extends Html5VideoAnalytics {
     this.headers = {};
     this.isSetup = false;
 
-    this._wireEvents(this.player);
+    this.listeners = this._wireEvents(this.player);
 
     return this;
   }
 
+  detach() {
+    // Remove video event listeners
+    Object.keys(this.listeners).forEach((evtName) => {
+      this.player.off(evtName, this.listeners[evtName]);
+    });
+    this.listeners = {};
+
+    // Clear up other state
+    clearTimeout(this._waitForBufferingCheck);
+  }
+
   _wireEvents(v) {
-    v.on('ended', () => {
-      this._handleNormalOperation();
-      this._report('complete');
-      this._handleBufferingEnd();
+    const listeners = {
+      'ended': () => {
+        this._handleNormalOperation();
+        this._report('complete');
+        this._handleBufferingEnd();
+      },
+      'error': (err) => {
+        this._handlePlaybackError(err);
+      },
+      'pause': () => {
+        this._handleNormalOperation();
+        this._report('pause');
+        this._handleBufferingEnd();
+      },
+      'play': () => {
+        this._handleNormalOperation();
+        this._report('play');
+        this._handleBufferingEnd();
+      },
+      'playing': () => {
+        this._handleNormalOperation();
+        this.isPlaying = true;
+        this._handleBufferingEnd();
+      },
+      'seeking': () => {
+        this._handleNormalOperation();
+        this._report('seek', {offset: this._getCurrentTime()});
+      },
+      'seeked': () => {
+        this._handleNormalOperation();
+        this._handleBufferingEnd();
+      },
+      'timeupdate': () => {
+        this._reportTime();
+      },
+      'stalled': () => {
+        this._handleBufferingStart();
+      },
+      'waiting': () => {
+        this._handleBufferingStart();
+      }
+    };
+
+    Object.keys(listeners).forEach((evtName) => {
+      v.on(evtName, listeners[evtName]);
     });
-    v.on('error', (err) => {
-      this._handlePlaybackError(err);
-    });
-    v.on('pause', () => {
-      this._handleNormalOperation();
-      this._report('pause');
-      this._handleBufferingEnd();
-    });
-    v.on('play', () => {
-      this._handleNormalOperation();
-      this._report('play');
-      this._handleBufferingEnd();
-    });
-    v.on('playing', () => {
-      this._handleNormalOperation();
-      this.isPlaying = true;
-      this._handleBufferingEnd();
-    });
-    v.on('seeking', () => {
-      this._handleNormalOperation();
-      this._report('seek', {offset: this._getCurrentTime()});
-    });
-    v.on('seeked', () => {
-      this._handleNormalOperation();
-      this._handleBufferingEnd();
-    });
-    v.on('timeupdate', () => {
-      this._reportTime();
-    });
-    v.on('stalled', () => {
-      this._handleBufferingStart();
-    });
-    v.on('waiting', () => {
-      this._handleBufferingStart();
-    });
+
+    return listeners;
   }
 
   _getCurrentTime() {

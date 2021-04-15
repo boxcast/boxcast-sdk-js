@@ -36,10 +36,13 @@ describe('analytics', () => {
     });
     expect(impl.isPlaying).to.be.false;
     expect(impl.isBuffering).to.be.false;
+    impl.detach();
+    expect(Object.keys(impl.listeners).length).to.equal(0);
   });
   it('should provide a Video.JS engine', () => {
     var player = {
       on: (evt, callback) => {},
+      off: (evt, callback) => {},
       currentTime: () => 42.0,
       videoHeight: () => 1080
     };
@@ -55,6 +58,8 @@ describe('analytics', () => {
     });
     expect(impl.isPlaying).to.be.false;
     expect(impl.isBuffering).to.be.false;
+    impl.detach();
+    expect(Object.keys(impl.listeners).length).to.equal(0);
   });
   it('should provide a ChromeCast engine', () => {
     window.cast = {

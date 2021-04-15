@@ -20,6 +20,7 @@ export default class Html5VideoAnalytics {
   constructor(state) {
     this.browserState = state;
     this._queue = [];
+    this.listeners = {};
   }
 
   attach(params) {
@@ -27,6 +28,11 @@ export default class Html5VideoAnalytics {
 
     if (!video) throw Error('video is required');
     if (!broadcast) throw Error('broadcast is required');
+
+    // Check if we're already attached and reset if so
+    if (Object.keys(this.listeners).length > 0) {
+      this.detach();
+    }
 
     this.player = video;
     this.broadcastInfo = {
@@ -46,52 +52,71 @@ export default class Html5VideoAnalytics {
     this.headers = {};
     this.isSetup = false;
 
-    this._wireEvents(this.player);
+    this.listeners = this._wireEvents(this.player);
 
     return this;
   }
 
+  detach() {
+    // Remove video event listeners
+    Object.keys(this.listeners).forEach((evtName) => {
+      this.player.removeEventListener(evtName, this.listeners[evtName], true);
+    });
+    this.listeners = {};
+
+    // Clear up other state
+    clearTimeout(this._waitForBufferingCheck);
+  }
+
   _wireEvents(v) {
-    v.addEventListener('ended', () => {
-      this._handleNormalOperation();
-      this._report('complete');
-      this._handleBufferingEnd();
-    }, true);
-    v.addEventListener('error', () => {
-      this._handlePlaybackError(this.player.error);
-    }, true);
-    v.addEventListener('pause', () => {
-      this._handleNormalOperation();
-      this._report('pause');
-      this._handleBufferingEnd();
-    }, true);
-    v.addEventListener('play', () => {
-      this._handleNormalOperation();
-      this._report('play');
-      this._handleBufferingEnd();
-    }, true);
-    v.addEventListener('playing', () => {
-      this._handleNormalOperation();
-      this.isPlaying = true;
-      this._handleBufferingEnd();
-    }, true);
-    v.addEventListener('seeking', () => {
-      this._handleNormalOperation();
-      this._report('seek', {offset: this.player.currentTime});
-    }, true);
-    v.addEventListener('seeked', () => {
-      this._handleNormalOperation();
-      this._handleBufferingEnd();
-    }, true);
-    v.addEventListener('timeupdate', () => {
-      this._reportTime();
-    }, true);
-    v.addEventListener('stalled', () => {
-      this._handleBufferingStart();
-    }, true);
-    v.addEventListener('waiting', () => {
-      this._handleBufferingStart();
-    }, true);
+    const listeners = {
+      'ended': () => {
+        this._handleNormalOperation();
+        this._report('complete');
+        this._handleBufferingEnd();
+      },
+      'error': () => {
+        this._handlePlaybackError(this.player.error);
+      },
+      'pause': () => {
+        this._handleNormalOperation();
+        this._report('pause');
+        this._handleBufferingEnd();
+      },
+      'play': () => {
+        this._handleNormalOperation();
+        this._report('play');
+        this._handleBufferingEnd();
+      },
+      'playing': () => {
+        this._handleNormalOperation();
+        this.isPlaying = true;
+        this._handleBufferingEnd();
+      },
+      'seeking': () => {
+        this._handleNormalOperation();
+        this._report('seek', {offset: this.player.currentTime});
+      },
+      'seeked': () => {
+        this._handleNormalOperation();
+        this._handleBufferingEnd();
+      },
+      'timeupdate': () => {
+        this._reportTime();
+      },
+      'stalled': () => {
+        this._handleBufferingStart();
+      },
+      'waiting': () => {
+        this._handleBufferingStart();
+      }
+    };
+
+    Object.keys(listeners).forEach((evtName) => {
+      v.addEventListener(evtName, listeners[evtName], true);
+    });
+
+    return listeners;
   }
 
   _isActuallyPlaying() {
