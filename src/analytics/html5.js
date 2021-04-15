@@ -66,6 +66,8 @@ export default class Html5VideoAnalytics {
 
     // Clear up other state
     clearTimeout(this._waitForBufferingCheck);
+
+    return this;
   }
 
   _wireEvents(v) {
