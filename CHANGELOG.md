@@ -1,6 +1,10 @@
 ## CHANGELOG
 
-### v1.4.10 on 2021-04-15
+### v1.4.1 on 2021-09-09
+
+* Avoid DOMException in incognito browsers accessing localStorage
+
+### v1.4.0 on 2021-04-15
 
 * Support re-attaching analytics to a new broadcast #28
 * Update JW Player example to use a playlist #28
