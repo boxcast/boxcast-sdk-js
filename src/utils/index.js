@@ -15,14 +15,28 @@ import { STATE } from '../state';
 
 export function getStorage() {
   try {
-    localStorage.setItem('__sentinel__', 'foo');
-    if (localStorage.getItem('__sentinel__') === 'foo') {
-      localStorage.removeItem('__sentinel__');
-      return localStorage;
+    try {
+      localStorage.setItem('__sentinel__', 'foo');
+      if (localStorage.getItem('__sentinel__') === 'foo') {
+        localStorage.removeItem('__sentinel__');
+        return localStorage;
+      }
+      return sessionStorage;
+    } catch (e) {
+      // Possible DOMException reading localStorage; try sessionStorage
+      return sessionStorage;
     }
-    return sessionStorage;
   } catch (e) {
-    return sessionStorage;
+    // Possible DOMException reading sessionStorage; use in-memory mock
+    const mockStorage = {
+      getItem: function(key) {
+        return this[key];
+      },
+      setItem: function(key, value) {
+        this[key] = value;
+      }
+    };
+    return mockStorage;
   }
 }
 
