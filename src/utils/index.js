@@ -14,7 +14,6 @@ import { STATE } from '../state';
 /* eslint max-len: 0 */
 
 export function getStorage() {
-  const { localStorage, sessionStorage } = window;
   try {
     localStorage.setItem('__sentinel__', 'foo');
     if (localStorage.getItem('__sentinel__') === 'foo') {
