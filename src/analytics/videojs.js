@@ -75,6 +75,11 @@ export default class VideoJsAnalytics extends Html5VideoAnalytics {
         this.isPlaying = true;
         this._handleBufferingEnd();
       },
+      'resize': () => {
+        this._handleNormalOperation();
+        this._report('quality');
+        this._handleBufferingEnd();
+      },
       'seeking': () => {
         this._handleNormalOperation();
         this._report('seek', {offset: this._getCurrentTime()});
