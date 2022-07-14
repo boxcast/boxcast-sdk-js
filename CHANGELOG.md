@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+### v1.5.0 on 2022-07-14
+
+* Add quality event reporting to analytics on level switch [#39]
+
 ### v1.4.1 on 2021-09-09
 
 * Avoid DOMException in incognito browsers accessing localStorage
