@@ -5,7 +5,7 @@
   "main": "lib/boxcast-sdk.js",
   "scripts": {
     "build": "webpack --env dev && webpack --env build && npm run test",
-    "deploy:latest": "npm run build && aws s3 cp ./lib/boxcast-sdk.min.js s3://js.boxcast.com/libs/boxcast-sdk-latest.min.js --profile=prod",
+    "deploy:latest": "npm run build && aws s3 cp ./lib/boxcast-sdk.min.js s3://js.boxcast.com/libs/boxcast-sdk-latest.min.js --profile=prod && aws s3 cp ./lib/boxcast-sdk.min.js.map s3://js.boxcast.com/libs/boxcast-sdk-latest.min.js.map --profile=prod",
     "dev": "webpack --progress --watch --env dev",
     "test": "mocha --require babel-register --require jsdom-global/register --file ./test/setup.js ./test/*.spec.js",
     "test:watch": "mocha --require babel-register -w ./test/*.spec.js"
