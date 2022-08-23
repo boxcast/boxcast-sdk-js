@@ -12,7 +12,7 @@ let outputFile, mode;
 
 if (env === 'build') {
   mode = 'production';
-  outputFile = libraryFileName + '.min.js';
+  outputFile = libraryFileName + '-latest.min.js';
 } else {
   mode = 'development';
   outputFile = libraryFileName + '.js';
