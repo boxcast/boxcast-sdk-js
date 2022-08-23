@@ -1,6 +1,6 @@
 ## CHANGELOG
 
-## v1.5.1 on UNRELEASED
+## v1.5.1 on 2022-08-23
 
 * Deploy minified `.map` file as well
 
