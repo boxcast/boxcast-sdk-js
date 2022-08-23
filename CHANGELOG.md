@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+## v1.5.2 on 2022-08-23
+
+* Fix issue where `-latest` was missing from link to map file
+
 ## v1.5.1 on 2022-08-23
 
 * Deploy minified `.map` file as well
