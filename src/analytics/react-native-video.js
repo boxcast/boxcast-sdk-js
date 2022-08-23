@@ -5,42 +5,36 @@
 
 /* eslint camelcase: 0 */
 
-const { uuid, normalizeError, normalizeAxiosError, getStorage,
-  cleanQuotesFromViewerID, Clock, MonotonicClock } = require('../utils');
+const { uuid, normalizeError, normalizeAxiosError, Clock, MonotonicClock } = require('../utils');
 const axios = require('axios');
 
 const METRICS_URL = 'https://metrics.boxcast.com/player/interaction';
 const PLAYING_STATES = 'play'.split(' ');
-const STOPPED_STATES = 'pause buffer idle stop complete error'.split(' ');
+const STOPPED_STATES = 'pause buffer complete error'.split(' ');
+const DOUBLE_REPORT_DEBOUNCE_MIN_MS = 1000;
 const TIME_REPORT_INTERVAL_MS = 60000;
+const BUFFERING_MIN_TIME_TO_REPORT_MS = 1000;
 
-const storage = getStorage();
-
-export default class Html5VideoAnalytics {
+export default class ReactNativeVideoAnalytics {
   constructor(state) {
     this.browserState = state;
     this._queue = [];
-    this.listeners = {};
   }
 
-  attach(params) {
-    const { video, broadcast, channel_id } = params;
+  async attach(params) {
+    const { broadcast, channel_id, AsyncStorage, debug } = params;
 
-    if (!video) throw Error('video is required');
     if (!broadcast) throw Error('broadcast is required');
-
-    // Check if we're already attached and reset if so
-    if (Object.keys(this.listeners).length > 0) {
-      this.detach();
-    }
-
-    this.player = video;
+    if (!AsyncStorage) throw Error('AsyncStorage is required');
+    this.storage = AsyncStorage;
+    this.debug = debug;
     this.broadcastInfo = {
       channel_id: channel_id || broadcast.channel_id,
       account_id: broadcast.account_id,
       is_live: (broadcast.timeframe === 'current'),
       broadcast_id: broadcast.id
     };
+    this.lastAction = null;
     this.lastReportAt = null;
     this.lastBufferStart = null;
     this.isPlaying = false;
@@ -51,147 +45,109 @@ export default class Html5VideoAnalytics {
     this.currentLevelHeight = 0;
     this.headers = {};
     this.isSetup = false;
+    this._bufferTimeoutHandle = null;
 
-    this.listeners = this._wireEvents(this.player);
-
-    return this;
-  }
-
-  detach() {
-    // Remove video event listeners
-    Object.keys(this.listeners).forEach((evtName) => {
-      this.player.removeEventListener(evtName, this.listeners[evtName], true);
-    });
-    this.listeners = {};
-
-    // Clear up other state
-    clearTimeout(this._waitForBufferingCheck);
+    await this._initViewerID();
 
     return this;
   }
 
-  _wireEvents(v) {
-    const listeners = {
-      'ended': () => {
-        this._handleNormalOperation();
-        this._report('complete');
-        this._handleBufferingEnd();
-      },
-      'error': () => {
-        this._handlePlaybackError(this.player.error);
-      },
-      'pause': () => {
-        this._handleNormalOperation();
-        this._report('pause');
-        this._handleBufferingEnd();
-      },
-      'play': () => {
-        this._handleNormalOperation();
-        this._report('play');
-        this._handleBufferingEnd();
-      },
-      'playing': () => {
-        this._handleNormalOperation();
-        this.isPlaying = true;
-        this._handleBufferingEnd();
-      },
-      'resize': () => {
-        this._handleNormalOperation();
-        this._report('quality');
-        this._handleBufferingEnd();
-      },
-      'seeking': () => {
-        this._handleNormalOperation();
-        this._report('seek', {offset: this.player.currentTime});
-      },
-      'seeked': () => {
-        this._handleNormalOperation();
-        this._handleBufferingEnd();
-      },
-      'timeupdate': () => {
-        this._reportTime();
-      },
-      'stalled': () => {
-        this._handleBufferingStart();
-      },
-      'waiting': () => {
-        this._handleBufferingStart();
-      }
+  generateVideoEventProps() {
+    return {
+      onBuffer: this._onBuffer.bind(this),
+      onError: this._onError.bind(this),
+      onLoad: this._onLoad.bind(this),
+      onProgress: this._onProgress.bind(this),
+      onEnd: this._onEnd.bind(this),
+      onPlaybackRateChange: this._onPlaybackRateChange.bind(this)
     };
-
-    Object.keys(listeners).forEach((evtName) => {
-      v.addEventListener(evtName, listeners[evtName], true);
-    });
-
-    return listeners;
   }
 
-  _isActuallyPlaying() {
-    return !!(this.player.currentTime > 0 && !this.player.paused && !this.player.ended && this.player.readyState > 2);
+  _onBuffer(evt) {
+    if (evt.isBuffering) {
+      this._handleBufferingStart();
+    } else {
+      this._handleBufferingEnd();
+    }
+  }
+
+  _onError(evt) {
+    console.warn('onError:', evt);
+    this._handlePlaybackError(evt);
+  }
+
+  _onLoad(evt) {
+    this.debug && console.log('onLoad:', evt);
+  }
+
+  _onProgress(evt) {
+    this._lastProgressTimestamp = evt.currentTime;
+    this._reportTime();
+  }
+
+  _onEnd(evt) {
+    this._report('complete');
+    this._handleBufferingEnd();
+  }
+
+  _onPlaybackRateChange(evt) {
+    // XXX: This is the primary trigger for knowing play/buffer/stall.  It goes
+    // from 0<->1 depending on what is happening. The other events do not appear
+    // to be reliable as of react-native-video v4.3.1
+
+    if (evt.playbackRate === 0) {
+      // rate == 0 --> pause
+      this._report('pause');
+      this._handleBufferingEnd();
+    } else if (evt.playbackRate === 1) {
+      // rate == 1 --> play
+      this._report('play');
+      this._handleBufferingEnd();
+    }
   }
 
   _getCurrentTime() {
-    return this.player.currentTime;
-  }
-
-  _getCurrentLevelHeight() {
-    // TODO: consider a more appropriate way to get level height, e.g. if using hls.js
-    return this.player.videoHeight;
+    return this._lastProgressTimestamp;
   }
 
   _handleBufferingStart() {
     this.isBuffering = true;
     this.lastBufferStart = this.lastBufferStart || MonotonicClock.now();
-
-    // Make sure it *stays* buffering for at least 500ms before reporting
-    if (this._waitForBufferingCheck) {
-      return;
+    if (this._bufferTimeoutHandle == null) {
+      this.debug && console.log('[analytics] Detected start of buffering');
+      this._bufferTimeoutHandle = setTimeout(() => {
+        this.isBuffering && this._report('buffer');
+      }, BUFFERING_MIN_TIME_TO_REPORT_MS);
     }
-    this._waitForBufferingCheck = setTimeout(() => {
-      this._waitForBufferingCheck = null;
-      if (!this.isBuffering) {
-        return;
-      }
-      if (this._isActuallyPlaying()) {
-        this._handleBufferingEnd();
-        return;
-      }
-      this._report('buffer');
-    }, 500);
-  }
-
-  _handleNormalOperation() {
-    this.stoppedHACK = false;
   }
 
   _handleBufferingEnd() {
     this.isBuffering = false;
     this.lastBufferStart = null;
 
-    clearTimeout(this._waitForBufferingCheck);
-    this._waitForBufferingCheck = null;
-
     // When done buffering, accumulate the time since it started buffering and
     // reset the active buffering timer.
     this.totalDurationBuffering += this.activeBufferingDuration;
     this.activeBufferingDuration = 0;
+
+    clearTimeout(this._bufferTimeoutHandle);
+    this._bufferTimeoutHandle = null;
+    this.debug && console.log('[analytics] Detected end of buffering');
   }
 
   _handlePlaybackError(error) {
-    if (this.stoppedHACK) {
-      console.warn('An error occurred, but playback is stopped so this should not be a problem', error);
-    } else if (error === null) {
+    if (error === null) {
       console.warn('An error event was fired, but the error was null'); // Ugh, Firefox
     } else {
       this._report('error', Object.assign({}, this.browserState, {error_object: normalizeError(error)}));
     }
   }
 
-  _setup() {
-    var viewerId = storage.getItem('boxcast-viewer-id', null);
+  async _initViewerID() {
+    var viewerId = await this.storage.getItem('boxcast-viewer-id');
     if (!viewerId) {
-      viewerId = cleanQuotesFromViewerID(uuid().replace(/-/g, ''));
-      storage.setItem('boxcast-viewer-id', viewerId);
+      viewerId = uuid().replace(/-/g, '');
+      this.storage.setItem('boxcast-viewer-id', viewerId);
     }
     this.headers = Object.assign({
       view_id: uuid().replace(/-/g, ''),
@@ -212,13 +168,12 @@ export default class Html5VideoAnalytics {
 
   _report(action, options) {
     if (!this.isSetup) {
-      this._setup();
       this.isSetup = true; // avoid infinite loop
       this._report('setup', this.browserState);
     }
 
+    // Accumulate the playing/buffering counters
     var n = MonotonicClock.now();
-
     if (this.isPlaying) {
       // Accumulate the playing counter stat between report intervals
       this.durationPlaying += (n - (this.lastReportAt || n));
@@ -228,7 +183,14 @@ export default class Html5VideoAnalytics {
       this.activeBufferingDuration = (n - (this.lastBufferStart || n));
     }
     this.isPlaying = PLAYING_STATES.indexOf(action) >= 0 || (this.isPlaying && !(STOPPED_STATES.indexOf(action) >= 0));
+
+    // Debounce if triggering same report again (often happens with multiple "play"s during buffering)
+    if (action === this.lastAction && (n - (this.lastReportAt || n)) < DOUBLE_REPORT_DEBOUNCE_MIN_MS) {
+      this.debug && console.log(`[analytics] Ignoring ${action} due to debounce on last report`);
+      return;
+    }
     this.lastReportAt = n;
+    this.lastAction = action;
 
     let c = Clock.now();
     options = options || {};
@@ -240,10 +202,7 @@ export default class Html5VideoAnalytics {
     options.position = this._getCurrentTime();
     options.duration = Math.round(this.durationPlaying / 1000);
     options.duration_buffering = Math.round((this.totalDurationBuffering + this.activeBufferingDuration) / 1000);
-    options.videoHeight = this._getCurrentLevelHeight();
-    if (this._getDvrIsUse) {
-      options.dvr = this._getDvrIsUse();
-    }
+    // options.videoHeight = // XXX: TODO: figure out how to determine video height
 
     this._queue.push(options);
     this._dequeue();
@@ -253,7 +212,9 @@ export default class Html5VideoAnalytics {
     var requeue = [];
 
     this._queue.forEach((options) => {
-      axios.post(METRICS_URL, options).catch((error) => {
+      axios.post(METRICS_URL, options).then(() => {
+        this.debug && console.log('[analytics] Posted: ', options);
+      }).catch((error) => {
         options.__attempts = (options.__attempts || 0) + 1;
         if (options.__attempts <= 5) {
           console.warn('Unable to post metrics; will retry', normalizeAxiosError(error), options);
@@ -268,3 +229,4 @@ export default class Html5VideoAnalytics {
     this._queue = requeue;
   }
 }
+

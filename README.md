@@ -1,6 +1,6 @@
 # BoxCast SDK for JavaScript
 
-![Travis](https://travis-ci.org/boxcast/boxcast-sdk-js.svg?branch=master)
+[![Build Status](https://travis-ci.org/boxcast/boxcast-sdk-js.svg?branch=master)](https://travis-ci.org/boxcast/boxcast-sdk-js)
 
 This library can be used for custom integration projects where the standard BoxCast embedded
 player may not suffice.
@@ -12,6 +12,7 @@ See Related:
  * [BoxCast Embedded Player Documentation](http://boxcast.github.io/boxcast_js_docs/)
  * [BoxCast Example Video Portal](https://github.com/boxcast/example_video_portal_vuejs)
  * [BoxCast API Documentation](http://boxcast.github.io/boxcast_api/)
+ * [BoxCast SDK for React Native](https://github.com/boxcast/boxcast-sdk-react-native)
 
 ## Getting Started
 
@@ -92,5 +93,54 @@ analytics.mode('html5').attach({
 
 analytics.mode('video.js').attach({
   player: player, broadcast: broadcast, channel_id: channel_id
+});
+```
+
+## Authenticated API Queries
+
+Use the `api.auth` object to query the BoxCast API in an authenticated scope, using your
+API client credentials.  Like the public API quries, all methods return a promise.
+
+Notes:
+
+ * When calling `api.auth.authenticate`, an `access_token` is retrieved and stored
+   within the global scope of the application.  This must be called each time the
+   application is reloaded to obtain a new token.
+ * Your API credentials (client ID, secret) are required to access these methods, and these
+   values _should never be shared_.  As a result, please do not allow this code to run
+   within a client application in a browser.
+
+```javascript
+api.auth.authenticate(
+  CLIENT_ID, CLIENT_SECRET
+).then((r) => {
+  console.log('Authenticated!', r);
+
+  api.auth.account()
+    .then((account) => console.log(account));
+
+  api.auth.channels.create({
+    name: 'My New Channel'
+  }).then((channel) => {
+    console.log('Created a new channel:', channel);
+
+    api.auth.channels.list({
+        s: 'name', // sort by
+        l: 20,     // page limit
+        p: 0       // page number
+    }).then((r) => console.log('All Channels:', r.pagination, r.data));
+  });
+
+  api.auth.broadcasts.list({
+    q: 'timeframe:current',
+    s: '-starts_at',
+    l: 20,
+    p: 0
+  }).then((r) => console.log('All Broadcasts:', r.pagination, r.data));
+
+  api.auth.broadcasts.get(broadcast_id)
+    .then((broadcast) => console.log(broadcast));
+
+  api.auth.logout();
 });
 ```

@@ -1,0 +1,251 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BoxCast SDK for JavaScript Reference</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+      #topbar {
+        position: fixed;
+        top: 0px;
+        background: #fff;
+        box-shadow: 0 2px 2px rgba(0,0,0,.1);
+        color: white;
+        width: 100%;
+        height: 50px;
+        z-index: 1000;
+      }
+      #topbar h1 {
+        margin: 0px;
+        padding: 0 20px;
+        vertical-align: middle;
+        line-height: 50px;
+      }
+      #topbar h1 a {
+        text-decoration: none;
+      }
+      #topbar h1 small {
+        color: #1aa8a1;
+        font-size: 14pt;
+        font-weight: 200;
+        line-height: 50px;
+        vertical-align: bottom;
+      }
+      #topbar img {
+        height: 25px;
+        margin-bottom: 8px;
+      }
+      .container-fluid {
+        margin-top: 50px;
+      }
+      .menu {
+        list-style: none;
+        padding-left: 0px;
+      }
+      .menu li.header {
+        margin-top: 20px;
+        margin-bottom: 5px;
+        padding-left: 20px;
+        font-weight: bold;
+      }
+      .menu li a {
+        font-weight: bold;
+        padding: 0 0 0 20px;
+      }
+      .menu ul {
+        list-style: none;
+        padding-left: 0px;
+      }
+      .menu ul li {
+        padding: 2px 10px;
+      }
+      .menu ul a {
+        font-weight: normal;
+      }
+      .menu li ul {
+        display: none;
+      }
+      .menu>li>a {
+        padding-top: 2px;
+        padding-bottom: 2px;
+      }
+      .menu>li.active.solo>a {
+        color: white;
+        background: #1AA8A1;
+        text-decoration: none;
+      }
+      .menu li.active ul {
+        display: block;
+      }
+      .menu ul li.active {
+        background: #1AA8A1;
+      }
+      .menu ul li.active a {
+        color: white;
+        text-decoration: none;
+      }
+      div#overview {
+        margin-top: -50px;
+      }
+      hr {
+        margin-top: 50px;
+      }
+      a { color: #1AA8A1; }
+      a:active { color: #1AA8A1; }
+      a:hover { color: #1AA8A1; }
+      a:visited { color: #1AA8A1; }
+      kbd {
+        display: block;
+        width: 50%;
+        background: black;
+        color: white;
+        font-weight: bold;
+      }
+      span.param {
+        color: #1AA8A1;
+        font-weight: bold;
+      }
+      .menu-panel {
+        margin:0px;
+        padding:0px;
+        background:#f8f8f8;
+        border-right:1px solid #ccc;
+        padding-bottom:2000px
+      }
+      @media (max-width: 1000px) {
+        .menu-panel {
+          display:none;
+        }
+        #topbar {
+          position: relative;
+          height: auto;
+          text-align: center;
+        }
+        #topbar h1 {
+          margin: 0px;
+          padding: 5px 10px 0px 10px;
+        }
+        #topbar h1 small {
+          white-space: nowrap;
+          vertical-align: top;
+          font-size: 0.5em;
+        }
+      }
+
+      .tab-pane pre {
+        border-radius: 0;
+        border-top: none;
+        background: #fff;
+        font-size: 0.8em;
+      }
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert"></script>
+    <script language="javascript">
+      $(document).ready(function() {
+        $('body').on('activate.bs.scrollspy', function (e) {
+          var li = $(e.target);
+          if (!li.closest('ul').hasClass('menu')) return;
+          if (li.find('li.active').length <= 0) {
+            li.addClass('solo');
+          } else {
+            li.removeClass('solo');
+          }
+        });
+      });
+    </script>
+  </head>
+  <body data-spy="scroll" data-target=".menu-panel" data-offset="50">
+    <div id="topbar">
+      <h1>
+        <a href="#overview">
+          <img src="https://www.boxcast.com/hs-fs/hub/484866/file-2483746126-png/Logos/NewBoxCastLogo.png?t=1481209848804" alt="BoxCast" align="top" />
+          <small>&lt;Developer /&gt; &nbsp; BoxCast SDK for JavaScript Reference</small>
+        </a>
+      </h1>
+    </div>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-2" style="margin:0px;padding:0px">
+          <div class="menu-panel col-md-2" style="" data-spy="affix">
+            <ul class="menu nav">
+              <li class="header">OVERVIEW</li>
+              <li><a href="#overview">Overview</a></li>
+              <li><a href="#gettingstarted">Getting Started</a></li>
+              <li class="header">EXAMPLES</li>
+              <li><a href="#videojs">Video.js</a></li>
+              <li><a href="#jwplayer">JWPlayer</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-8" style="padding-bottom:100px">
+
+          <div id="overview"></div><hr />
+          <h2>Overview</h2>
+          <p>This library can be used for custom integration projects where the standard BoxCast embedded player may not suffice.</p>
+          <p>We do strongly encourage you to use the standard embedded player instead of this library where possible, because it is the most robust and well-tested playback option.</p>
+          <p>See Related:</p>
+          <ul>
+          <li><a href="http://boxcast.github.io/boxcast_js_docs/">BoxCast Embedded Player Documentation</a></li>
+          <li><a href="https://github.com/boxcast/example_video_portal_vuejs">BoxCast Example Video Portal</a></li>
+          <li><a href="http://boxcast.github.io/boxcast_api/">BoxCast API Documentation</a></li>
+          </ul>
+
+          <div id="gettingstarted"></div><hr />
+          <h2>Getting Started</h2>
+<pre><code>&lt;script src="https://js.boxcast.com/libs/boxcast-sdk-latest.min.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  var analytics = BoxCastSDK.analytics;
+  var api = BoxCastSDK.api;
+&lt;/script&gt;
+</code></pre>
+<p><em>or, install via NPM</em></p>
+<pre><code># First, install the SDK from NPM
+npm install boxcast-sdk-js --save
+
+# Then, in your javascript project:
+var { analytics, api } = require('boxcast-sdk-js');
+</code></pre>
+          <p>You will need to know your BoxCast account ID and corresponding channel IDs in order to properly
+          utilize this library.  Contact BoxCast developer support if you need assistance.</p>
+
+          <div id="videojs"></div><hr />
+          <h2>Example - video.js video playback</h2>
+          <a href="videojs.html">Run example video.js player with BoxCast SDK for JavaScript</a>
+
+          <div id="jwplayer"></div><hr />
+          <h2>Example - JWPlayer video playback</h2>
+          <a href="jwplayer.html">Run example JWPlayer with BoxCast SDK for JavaScript</a>
+
+        </div>
+      </div>
+
+    </div>
+
+    <footer>
+      <div class="text-center">
+        <p class="help-block">
+          Copyright &copy; 2016 <a href="https://www.boxcast.com">BoxCast</a>. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+  </body>
+</html>

@@ -3,19 +3,40 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
+import Clock from './clock';
+export { Clock };
+
+import MonotonicClock from './monotonic_clock';
+export { MonotonicClock };
+
+import { STATE } from '../state';
+
 /* eslint max-len: 0 */
 
 export function getStorage() {
-  const { localStorage, sessionStorage } = window;
   try {
-    localStorage.setItem('__sentinel__', 'foo');
-    if (localStorage.getItem('__sentinel__') === 'foo') {
-      localStorage.removeItem('__sentinel__');
-      return localStorage;
+    try {
+      localStorage.setItem('__sentinel__', 'foo');
+      if (localStorage.getItem('__sentinel__') === 'foo') {
+        localStorage.removeItem('__sentinel__');
+        return localStorage;
+      }
+      return sessionStorage;
+    } catch (e) {
+      // Possible DOMException reading localStorage; try sessionStorage
+      return sessionStorage;
     }
-    return sessionStorage;
   } catch (e) {
-    return sessionStorage;
+    // Possible DOMException reading sessionStorage; use in-memory mock
+    const mockStorage = {
+      getItem: function(key) {
+        return this[key];
+      },
+      setItem: function(key, value) {
+        this[key] = value;
+      }
+    };
+    return mockStorage;
   }
 }
 
@@ -29,6 +50,16 @@ export function uuid() {
     return text;
   };
   return r(8) + '-' + r(4) + '-' + r(4) + '-' + r(4) + '-' + r(12);
+}
+
+export function cleanQuotesFromViewerID(viewerId) {
+  if (!viewerId || viewerId.length < 3) {
+    return viewerId || '';
+  }
+  if (viewerId[0] === '"' && viewerId[viewerId.length - 1] === '"') {
+    return viewerId.substring(1, viewerId.length - 1);
+  }
+  return viewerId;
 }
 
 export function normalizeError(error, source) {
@@ -66,4 +97,32 @@ export function normalizeError(error, source) {
     errorObject.source = source;
   }
   return errorObject;
+}
+
+export function normalizeAxiosError(error) {
+  // Error could be nil, or it could be a response-like object, or it could
+  // contain a nested response :(
+  if (!error) {
+    return 'Unknown error';
+  } else if (error.response && error.response.data) {
+    return error.response.data;
+  } else if (error.data) {
+    return error.data;
+  }
+  return error;
+}
+
+export function parseList(response) {
+  return {
+    pagination: JSON.parse(response.headers['x-pagination'] || '{}'),
+    data: response.data
+  };
+}
+
+export function authHeaders() {
+  return {
+    headers: {
+      'Authorization': `Bearer ${STATE.lastAuthToken}`
+    }
+  };
 }

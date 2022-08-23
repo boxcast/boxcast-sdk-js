@@ -8,6 +8,7 @@
  * Licensed under the MIT license. See LICENSE file in the project root for details.
  */
 
+import 'babel-polyfill';
 import api from './api';
 import analytics from './analytics';
 
