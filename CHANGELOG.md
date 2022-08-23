@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+## v1.5.1 on 2022-08-23
+
+* Deploy minified `.map` file as well
+
 ### v1.5.0 on 2022-07-14
 
 * Add quality event reporting to analytics on level switch [#39]
