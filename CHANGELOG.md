@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+## v1.5.3 on 2023-04-12
+
+* Fix an issue with webpack config causing imports via require to throw an error
+
 ## v1.5.2 on 2022-08-23
 
 * Fix issue where `-latest` was missing from link to map file

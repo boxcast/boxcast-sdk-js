@@ -27,7 +27,11 @@ const config = {
     filename: outputFile,
     library: libraryName,
     libraryTarget: 'umd',
-    umdNamedDefine: true
+    umdNamedDefine: true,
+
+    // This needs to be set to 'this' instead of the default 'self', since this package is accessed via the broser (script tag), or the server (npm install & require())
+    // Further reading: https://webpack.js.org/configuration/output/#outputglobalobject
+    globalObject: 'this',
   },
   plugins: [
     new webpack.DefinePlugin({
