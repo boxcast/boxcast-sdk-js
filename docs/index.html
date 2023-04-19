@@ -210,18 +210,19 @@
 
           <div id="gettingstarted"></div><hr />
           <h2>Getting Started</h2>
-<pre><code>&lt;script src="https://js.boxcast.com/libs/boxcast-sdk-latest.min.js"&gt;&lt;/script&gt;
+<pre><code>&lt;script src="https://js.boxcast.com/libs/boxcast-sdk-js-2.0.0/browser.js"&gt;&lt;/script&gt;
 &lt;script&gt;
-  var analytics = BoxCastSDK.analytics;
-  var api = BoxCastSDK.api;
+const { analytics, api } = new BoxCastSDK();
 &lt;/script&gt;
 </code></pre>
 <p><em>or, install via NPM</em></p>
-<pre><code># First, install the SDK from NPM
-npm install boxcast-sdk-js --save
+<pre><code>/* Important: If you are running this on node, use this: */
+import BoxCastSDK from "boxcast-sdk-js/node";
 
-# Then, in your javascript project:
-var { analytics, api } = require('boxcast-sdk-js');
+/* otherwise, if you are running this in a browser, use this: */
+import BoxCastSDK from "boxcast-sdk-js/browser";
+
+const { analytics, api } = new BoxCastSDK();
 </code></pre>
           <p>You will need to know your BoxCast account ID and corresponding channel IDs in order to properly
           utilize this library.  Contact BoxCast developer support if you need assistance.</p>

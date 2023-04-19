@@ -16,22 +16,28 @@ See Related:
 
 ## Getting Started
 
-```
-<script src="https://js.boxcast.com/libs/boxcast-sdk-latest.min.js"></script>
+```html
+<script src="https://js.boxcast.com/libs/boxcast-sdk-js-2.0.0/browser.js"></script>
 <script>
-  var analytics = BoxCastSDK.analytics;
-  var api = BoxCastSDK.api;
+  const { analytics, api } = new BoxCastSDK();
 </script>
 ```
 
 _or, install via NPM_
 
-```
+```shell
 # First, install the SDK from NPM
 npm install boxcast-sdk-js --save
+```
+```javascript
+/* Important: If you are using the SDK on node, use this: */
+/* Running on node is required to make Authenticated API calls as well as running authenticated API tests */
+import BoxCastSDK from "boxcast-sdk-js/node";
 
-# Then, in your javascript project:
-var { analytics, api } = require('boxcast-sdk-js');
+/* otherwise, if you are using the SDK in a browser, use this: */
+import BoxCastSDK from "boxcast-sdk-js/browser";
+
+const { analytics, api } = new BoxCastSDK();
 ```
 
 You will need to know your BoxCast account ID and corresponding channel IDs in order to properly
@@ -49,27 +55,30 @@ Notes:
  * Your API credentials (client ID, secret) are not required to access these routes.
 
 ```javascript
+// List Channels
 api.channels.list(account_id, {
   s: 'name', // sort by
   l: 20,     // page limit
   p: 0       // page number
-}).then((r) => console.log(r.pagination, r.data));
+});
 
+// List Broadcasts
 api.broadcasts.list(channel_id, {
   q: 'timeframe:current',
   s: '-starts_at',
   l: 20,
   p: 0
-}).then((r) => console.log(r.pagination, r.data));
+});
 
-api.broadcasts.get(broadcast_id)
-  .then((broadcast) => console.log(broadcast));
+// Get a Broadcast
+api.broadcasts.get(broadcast_id);
 
+// Get Views for a Broadcast
 api.views.get(broadcast_id, {
   channel_id: channel_id,
   host: window.location.hostname,
   extended: true
-}).then((view) => console.log(view));
+});
 ```
 
 ## Analytics
@@ -90,7 +99,6 @@ analytics.mode('html5').attach({
 });
 
 // ... or if using video.js ... //
-
 analytics.mode('video.js').attach({
   player: player, broadcast: broadcast, channel_id: channel_id
 });
@@ -111,36 +119,43 @@ Notes:
    within a client application in a browser.
 
 ```javascript
-api.auth.authenticate(
-  CLIENT_ID, CLIENT_SECRET
-).then((r) => {
-  console.log('Authenticated!', r);
+const {api} = new BoxCastSDK();
 
-  api.auth.account()
-    .then((account) => console.log(account));
+// Get an Auth Token
+api.auth.authenticate(CLIENT_ID, CLIENT_SECRET);
 
-  api.auth.channels.create({
-    name: 'My New Channel'
-  }).then((channel) => {
-    console.log('Created a new channel:', channel);
+// Get Account Details
+api.auth.account();
 
-    api.auth.channels.list({
-        s: 'name', // sort by
-        l: 20,     // page limit
-        p: 0       // page number
-    }).then((r) => console.log('All Channels:', r.pagination, r.data));
-  });
+// Create a Channel
+api.auth.channels.create({name: 'My New Channel'});
 
-  api.auth.broadcasts.list({
-    q: 'timeframe:current',
-    s: '-starts_at',
-    l: 20,
-    p: 0
-  }).then((r) => console.log('All Broadcasts:', r.pagination, r.data));
-
-  api.auth.broadcasts.get(broadcast_id)
-    .then((broadcast) => console.log(broadcast));
-
-  api.auth.logout();
+// List Channels
+api.auth.channels.list({
+  s: 'name', // sort by
+  l: 20,     // page limit
+  p: 0       // page number
 });
+
+// List Broadcasts
+api.auth.broadcasts.list({
+  q: 'timeframe:past',   // query
+  s: '-starts_at',          // sort by
+  l: 20,                    // page limit
+  p: 0                      // page number
+})
+
+// Find a Broadcast by ID
+api.auth.broadcasts.get(broadcastId);
+
+// Log Out
+await api.auth.logout();
 ```
+
+## Running Tests
+Tests in this SDK are handled by Jest, and in order to run them, you will need a BoxCast Client ID and Client Secret key. These come from the API keys page in your Dashboad within the Settings page. To set these keys, create a file at `./.jest/setEnvVars.ts` with the following lines. Your Client ID and Client Secret should go inside the empty strings.
+```shell
+process.env.BOXCAST_SDK_JS__TEST_CLIENT_ID = ''
+process.env.BOXCAST_SDK_JS__TEST_CLIENT_SECRET = ''
+```
+Once you've set these, you can run the tests with `npm run test` or a single test with `npm run test -- test/test-name.ts`

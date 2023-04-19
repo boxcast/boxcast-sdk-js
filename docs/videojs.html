@@ -3,15 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <title>BoxCast Video.js Example</title>
-    <script src="//js.boxcast.com/libs/boxcast-sdk-latest.min.js"></script>
-    <link href="//vjs.zencdn.net/7.4.1/video-js.css" rel="stylesheet">
-    <script src="//vjs.zencdn.net/7.4.1/video.js"></script>
+    <script src="https://js.boxcast.com/libs/boxcast-sdk-js-2.0.0/browser.js"></script>
+    <link href="https://vjs.zencdn.net/7.4.1/video-js.css" rel="stylesheet">
+    <script src="https://vjs.zencdn.net/7.4.1/video.js"></script>
     <style>
-    .video-container {
-      border: 1px solid #aaa;
-      margin: 20px auto;
-      max-width: 1200px;
-    }
+      .video-container {
+        border: 1px solid #aaa;
+        margin: 20px auto;
+        max-width: 1200px;
+      }
     </style>
   </head>
   <body>
@@ -23,15 +23,16 @@
     </div>
 
     <script type="text/javascript">
+      const {api, analytics} = new BoxCastSDK();
       var BOXCAST_BROADCAST_ID = '777670';
       var videoContainer = document.querySelector('#js-video-container');
       var player = videojs('js-video');
 
-      BoxCastSDK.api.broadcasts.get(BOXCAST_BROADCAST_ID).then(function(broadcast) {
-        BoxCastSDK.api.views.get(BOXCAST_BROADCAST_ID).then(function(view) {
+      api.broadcasts.get(BOXCAST_BROADCAST_ID).then(function(broadcast) {
+        api.views.get(BOXCAST_BROADCAST_ID).then(function(view) {
           if (!view.playlist) return;
           player.src(view.playlist);
-          BoxCastSDK.analytics.mode('video.js').attach({
+          analytics.mode('video.js').attach({
             player: player,
             broadcast: broadcast,
             channel_id: broadcast.channel_id

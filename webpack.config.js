@@ -1,62 +1,79 @@
-/* global __dirname, require, module*/
-
-const webpack = require('webpack');
 const path = require('path');
-const env = require('yargs').argv.env; // use --env with webpack 2
+const webpack = require('webpack');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const nodeExternals = require('webpack-node-externals');
 const pkg = require('./package.json');
 
-let libraryFileName = 'boxcast-sdk';
-let libraryName = 'BoxCastSDK';
 
-let outputFile, mode;
+const LIBRARY_NAME = 'BoxCastSDK';
 
-if (env === 'build') {
-  mode = 'production';
-  outputFile = libraryFileName + '-latest.min.js';
-} else {
-  mode = 'development';
-  outputFile = libraryFileName + '.js';
-}
-
-const config = {
-  mode: mode,
-  entry: __dirname + '/src/index.js',
-  devtool: 'source-map',
-  output: {
-    path: __dirname + '/lib',
-    filename: outputFile,
-    library: libraryName,
-    libraryTarget: 'umd',
-    umdNamedDefine: true,
-
-    // This needs to be set to 'this' instead of the default 'self', since this package
-    // is accessed via the browser (script tag), or the server (npm install & require())
-    // Further reading: https://webpack.js.org/configuration/output/#outputglobalobject
-    globalObject: 'this'
+const generalConfig = {
+  mode: 'none',
+  watchOptions: {
+    aggregateTimeout: 600,
+    ignored: /node_modules/,
   },
   plugins: [
     new webpack.DefinePlugin({
-      NPM_VERSION: JSON.stringify(pkg.version)
-    })
+      'process.env': {
+        NPM_VERSION: JSON.stringify(pkg.version)
+      }
+    }),
+    new CleanWebpackPlugin({
+      cleanStaleWebpackAssets: false,
+      cleanOnceBeforeBuildPatterns: [path.resolve(__dirname, './dist')],
+    }),
   ],
   module: {
     rules: [
       {
-        test: /(\.jsx|\.js)$/,
-        loader: 'babel-loader',
-        exclude: /(node_modules)/
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
       },
-      {
-        test: /(\.jsx|\.js)$/,
-        loader: 'eslint-loader',
-        exclude: /node_modules/
-      }
-    ]
+    ],
   },
   resolve: {
-    modules: [path.resolve('./node_modules'), path.resolve('./src')],
-    extensions: ['.json', '.js']
-  }
+    extensions: ['.tsx', '.ts', '.js'],
+  },
 };
 
-module.exports = config;
+const nodeConfig = {
+  entry: './src/node.ts',
+  target: 'node',
+  externals: [nodeExternals()],
+  output: {
+    path: path.resolve(__dirname, './dist'),
+    filename: 'node.js',
+    libraryTarget: 'umd',
+    libraryExport: 'default',
+  },
+};
+
+const browserConfig = {
+  entry: './src/browser.ts',
+  target: 'web',
+  output: {
+    path: path.resolve(__dirname, './dist'),
+    filename: 'browser.js',
+    libraryTarget: 'umd',
+    globalObject: 'this',
+    libraryExport: 'default',
+    umdNamedDefine: true,
+    library: LIBRARY_NAME,
+  },
+};
+
+module.exports = (env, argv) => {
+  if (argv.mode === 'development') {
+    generalConfig.devtool = 'cheap-module-source-map';
+  } else if (argv.mode === 'production') {
+  } else {
+    throw new Error('Specify env');
+  }
+
+  Object.assign(nodeConfig, generalConfig);
+  Object.assign(browserConfig, generalConfig);
+
+  return [nodeConfig, browserConfig];
+};

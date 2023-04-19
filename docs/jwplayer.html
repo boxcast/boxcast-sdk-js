@@ -3,9 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <title>BoxCast JW Player Example</title>
-    <script src="//js.boxcast.com/libs/boxcast-sdk-latest.min.js"></script>
-    <!--script src="../lib/boxcast-sdk.min.js"></script-->
-    <script src="//content.jwplatform.com/libraries/CoAGnMzN.js"></script>
+    <script src="https://js.boxcast.com/libs/boxcast-sdk-js-2.0.0/browser.js"></script>
+    <script src="https://content.jwplatform.com/libraries/CoAGnMzN.js"></script>
     <style>
     .video-container {
       border: 1px solid #aaa;
@@ -23,18 +22,19 @@
     </div>
 
     <script type="text/javascript">
+      const {api, analytics} = new BoxCastSDK();
       // Set up a playlist based on multiple broadcast IDs
       var BOXCAST_BROADCAST_IDS = [
         '777670',
       ];
       var videoContainer = document.querySelector('#js-video-container');
       var player = jwplayer('js-video');
-      var analytics = BoxCastSDK.analytics.mode('html5');
+      var analyticsHandler = analytics.mode('html5');
 
       var promise = Promise.all(
         BOXCAST_BROADCAST_IDS.map(function(id) {
-          return BoxCastSDK.api.broadcasts.get(id).then(function(broadcast) {
-            return BoxCastSDK.api.views.get(id).then(function(view) {
+          return api.broadcasts.get(id).then(function(broadcast) {
+            return api.views.get(id).then(function(view) {
               if (!view.playlist) {
                 return null;
               }
@@ -64,14 +64,14 @@
           width: '100%'
         });
         video.on('ready', function() {
-          analytics.detach().attach({
+          analyticsHandler.detach().attach({
             video: videoContainer.querySelector('video'),
             broadcast: playlist[0].broadcast,
             channel_id: playlist[0].broadcast.channel_id
           });
         });
         video.on('playlistItem', function(e) {
-          analytics.detach().attach({
+          analyticsHandler.detach().attach({
             video: videoContainer.querySelector('video'),
             broadcast: e.item.broadcast,
             channel_id: e.item.broadcast.channel_id
