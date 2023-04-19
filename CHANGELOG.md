@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+## v2.0.0 on 2023-04-19
+
+* Switch to fetch due to errors when running axios on the server. Switch to dual-entry point configuration. One for browser, one for node. Update readme, documentation, migrate tests to jest.
+
 ## v1.5.3 on 2023-04-12
 
 * Fix an issue with webpack config causing imports via require to throw an error
