@@ -31,11 +31,6 @@ describe('authenticated api integration test', () => {
     await expect(api.auth.account()).rejects.toThrow('Authentication is required');
   });
 
-  /**
-     * PKCE authentication is needed to be able to submit the requests covered by the following tests
-     * Commenting these out until this SDK supports PKCE
-     */
-
   it('should support client authentication', async () => {
     const result = await api.auth.authenticate(clientId, clientSecret);
     expect(result.access_token).not.toBeNull();
