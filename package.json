@@ -1,6 +1,6 @@
 {
-  "name": "boxcast-sdk-js",
-  "version": "2.0.0",
+  "name": "@boxcast/boxcast-sdk-js",
+  "version": "2.0.1",
   "description": "Official JavaScript SDK for the BoxCast API",
   "scripts": {
     "expose": "node scripts/unwrap.js",

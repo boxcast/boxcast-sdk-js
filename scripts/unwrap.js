@@ -5,7 +5,7 @@ const TARGET = './dist';
 
 fs.readdirSync(TARGET).forEach((file) => {
   const entry = join(TARGET, file);
-  const output = join(__dirname, file);
+  const output = join(__dirname, '..', file);
 
   if (fs.existsSync(output)) {
     fs.unlinkSync(output); // Delete existing file

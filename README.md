@@ -1,6 +1,5 @@
 # BoxCast SDK for JavaScript
 
-[![Build Status](https://travis-ci.org/boxcast/boxcast-sdk-js.svg?branch=master)](https://travis-ci.org/boxcast/boxcast-sdk-js)
 
 This library can be used for custom integration projects where the standard BoxCast embedded
 player may not suffice.
@@ -15,33 +14,35 @@ See Related:
  * [BoxCast SDK for React Native](https://github.com/boxcast/boxcast-sdk-react-native)
 
 ## Getting Started
+There are a few ways to use this SDK: on the server (node or serverless) via NPM, or in the browser (via NPM or `<script>` tag). If you are importing it via NPM, please make sure you are importing from the correct entry point (node or browser). If you are unsure which, please contact BoxCast developer support.
 
+**Please note: running the SDK on node or within a severless environment is required to make Authenticated API calls**
+
+You will need to know your BoxCast account ID and corresponding channel IDs in order to properly
+utilize this library.  Contact BoxCast developer support if you need assistance.
+
+## Running on Node\Serverless
+```javascript
+npm install @boxcast/boxcast-sdk-js --save
+
+import BoxCastSDK from "@boxcast/boxcast-sdk-js/node";
+const { analytics, api } = new BoxCastSDK();
+```
+## Running in Browser\Client Application
+```javascript
+npm install @boxcast/boxcast-sdk-js --save
+
+import BoxCastSDK from "@boxcast/boxcast-sdk-js/browser";
+const { analytics, api } = new BoxCastSDK();
+```
+## Installing via `<script>` tag
 ```html
-<script src="https://js.boxcast.com/libs/boxcast-sdk-js-2.0.0/browser.js"></script>
+<script src="https://js.boxcast.com/libs/boxcast-sdk-js-2.0.1/browser.js"></script>
 <script>
   const { analytics, api } = new BoxCastSDK();
 </script>
 ```
 
-_or, install via NPM_
-
-```shell
-# First, install the SDK from NPM
-npm install boxcast-sdk-js --save
-```
-```javascript
-/* Important: If you are using the SDK on node, use this: */
-/* Running on node is required to make Authenticated API calls as well as running authenticated API tests */
-import BoxCastSDK from "boxcast-sdk-js/node";
-
-/* otherwise, if you are using the SDK in a browser, use this: */
-import BoxCastSDK from "boxcast-sdk-js/browser";
-
-const { analytics, api } = new BoxCastSDK();
-```
-
-You will need to know your BoxCast account ID and corresponding channel IDs in order to properly
-utilize this library.  Contact BoxCast developer support if you need assistance.
 
 ## Public API Queries
 
@@ -119,8 +120,6 @@ Notes:
    within a client application in a browser.
 
 ```javascript
-const {api} = new BoxCastSDK();
-
 // Get an Auth Token
 api.auth.authenticate(CLIENT_ID, CLIENT_SECRET);
 
@@ -149,7 +148,7 @@ api.auth.broadcasts.list({
 api.auth.broadcasts.get(broadcastId);
 
 // Log Out
-await api.auth.logout();
+api.auth.logout();
 ```
 
 ## Running Tests

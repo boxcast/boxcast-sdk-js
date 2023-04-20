@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+## v2.0.1 on 2023-04-20
+
+* Update README, update package name to include npm org
+
 ## v2.0.0 on 2023-04-19
 
 * Switch to fetch due to errors when running axios on the server. Switch to dual-entry point configuration. One for browser, one for node. Update readme, documentation, migrate tests to jest.
