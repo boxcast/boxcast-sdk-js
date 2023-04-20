@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+## v2.0.2 on 2023-04-20
+
+* Remove prepublishOnly script. Moving files after tagging was causing uncommitted changes
+
 ## v2.0.1 on 2023-04-20
 
 * Update README, update package name to include npm org

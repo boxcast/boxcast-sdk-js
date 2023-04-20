@@ -37,7 +37,7 @@ const { analytics, api } = new BoxCastSDK();
 ```
 ## Installing via `<script>` tag
 ```html
-<script src="https://js.boxcast.com/libs/boxcast-sdk-js-2.0.1/browser.js"></script>
+<script src="https://js.boxcast.com/libs/boxcast-sdk-js-2.0.2/browser.js"></script>
 <script>
   const { analytics, api } = new BoxCastSDK();
 </script>
