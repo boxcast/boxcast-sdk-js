@@ -13,6 +13,15 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage"
   },
+  "main": "dist/index.js",
+  "module": "src/index.ts",
+  "typings": "dist/index.d.ts",
+  "browser": "dist/browser.js",
+  "mainFields": [
+    "browser",
+    "module",
+    "main"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/boxcast/boxcast-sdk-js.git"
