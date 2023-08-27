@@ -45,6 +45,10 @@ export default class AuthenticatedRoutes {
     }
   }
 
+  setToken(token: string) {
+    STATE.lastAuthToken = token;
+  }
+
   async account() {
     try {
       if (!STATE.lastAuthToken) {
@@ -58,6 +62,10 @@ export default class AuthenticatedRoutes {
       console.error('Error fetching account:', error);
       throw error;
     }
+  }
+
+  get token(): string {
+    return STATE.lastAuthToken;
   }
 
   get broadcasts() {
