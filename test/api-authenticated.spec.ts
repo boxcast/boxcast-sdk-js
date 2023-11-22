@@ -75,5 +75,10 @@ describe('authenticated api integration test', () => {
     const response = await api.auth.channels.destroy(channel.id);
     expect(true).toEqual(true);
   });
+
+  it('should allow the token to be manually set', async () => {
+    api.auth.setToken('test_auth_token');
+    expect(api.auth.token).toEqual('test_auth_token');
+  });
 });
 
