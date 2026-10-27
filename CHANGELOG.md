@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+## v2.0.3 on UNRELEASED
+
+* Build on Node 24.22.1 for the eMudhra CA compromise [#62]
+
 ## v2.0.2 on 2023-04-20
 
 * Remove prepublishOnly script. Moving files after tagging was causing uncommitted changes
