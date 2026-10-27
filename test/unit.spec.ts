@@ -53,5 +53,18 @@ describe('BoxCast SDK', () => {
       expect(fetch).toHaveBeenCalledTimes(1);
       expect(fetch.mock.calls[0][0]).toBe('https://rest.boxcast.com/broadcasts/b1/view?channel_id=c1&host=example.com');
     });
+
+    it('auth list sends params as a query string', async () => {
+      await api.auth.authenticate('client-id', 'client-secret');
+      fetch.mockClear();
+      await api.auth.broadcasts.list({ q: 'timeframe:current', l: 5 });
+      await api.auth.channels.list({ s: 'name' });
+      api.auth.logout();
+      expect(fetch.mock.calls.map((call) => call[0])).toEqual([
+        'https://rest.boxcast.com/broadcasts?q=timeframe%3Acurrent&l=5',
+        'https://rest.boxcast.com/account/channels?s=name',
+      ]);
+      expect(fetch.mock.calls[0][1].headers.Authorization).toBe('Bearer tok-123');
+    });
   });
 });

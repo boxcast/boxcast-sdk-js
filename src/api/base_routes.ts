@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
+import qs from 'qs';
 import { API_ROOT } from "../config";
 import { authHeaders, parseFetchedList } from "../utils";
 
@@ -21,7 +22,7 @@ export class BaseAuthenticatedRoute {
   async list(params = {}) {
     try {
       const response = await this.#fetch(
-        `${API_ROOT}/${this.resourceBase}`,
+        `${API_ROOT}/${this.resourceBase}?${qs.stringify(params)}`,
         {
           method: 'GET',
           headers: {...authHeaders(), ...{'Content-Type': 'application/json'}},
