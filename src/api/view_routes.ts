@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 //
 
+import qs from 'qs';
 import { API_ROOT } from '../config';
 
 export default class ViewRoutes {
@@ -18,7 +19,7 @@ export default class ViewRoutes {
     }
 
     try {
-      const response = await this.#fetch(`${API_ROOT}/broadcasts/${broadcastId}/view`, {params});
+      const response = await this.#fetch(`${API_ROOT}/broadcasts/${broadcastId}/view?${qs.stringify(params)}`);
       const view = await response.json();
       if (view && view.playlist) {
         if (view.status.indexOf('live') < 0 && view.status.indexOf('recorded') < 0) {
