@@ -1,6 +1,6 @@
 ## CHANGELOG
 
-## v2.0.3 on UNRELEASED
+## v2.0.3 on 2026-10-27
 
 * Build on Node 24.22.1 for the eMudhra CA compromise [#62]
 
