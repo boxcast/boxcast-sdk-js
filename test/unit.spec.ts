@@ -66,5 +66,22 @@ describe('BoxCast SDK', () => {
       ]);
       expect(fetch.mock.calls[0][1].headers.Authorization).toBe('Bearer tok-123');
     });
+
+    it('auth routes reject without a request when not authenticated', async () => {
+      api.auth.logout();
+      const calls = [
+        () => api.auth.broadcasts.list(),
+        () => api.auth.broadcasts.get('b1'),
+        () => api.auth.broadcasts.create({ name: 'x' }),
+        () => api.auth.broadcasts.update('b1', { name: 'y' }),
+        () => api.auth.broadcasts.destroy('b1'),
+        () => api.auth.channels.list(),
+        () => api.auth.channels.get('c1'),
+      ];
+      for (const call of calls) {
+        await expect(call()).rejects.toThrow('Authentication is required');
+      }
+      expect(fetch).not.toHaveBeenCalled();
+    });
   });
 });

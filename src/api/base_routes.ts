@@ -5,7 +5,14 @@
 
 import qs from 'qs';
 import { API_ROOT } from "../config";
+import { STATE } from "../state";
 import { authHeaders, parseFetchedList } from "../utils";
+
+function requireAuthentication() {
+  if (!STATE.lastAuthToken) {
+    throw new Error('Authentication is required');
+  }
+}
 
 export class BaseAuthenticatedRoute {
   public headers;
@@ -20,6 +27,7 @@ export class BaseAuthenticatedRoute {
   }
 
   async list(params = {}) {
+    requireAuthentication();
     try {
       const response = await this.#fetch(
         `${API_ROOT}/${this.resourceBase}?${qs.stringify(params)}`,
@@ -38,6 +46,7 @@ export class BaseAuthenticatedRoute {
     if (!id) {
       throw new Error('id is required');
     }
+    requireAuthentication();
     try {
       const response = await this.#fetch(
         `${API_ROOT}/${this.resourceBase}/${id}`,
@@ -53,6 +62,7 @@ export class BaseAuthenticatedRoute {
   }
 
   async create(params = {}) {
+    requireAuthentication();
     try {
       const response = await this.#fetch(
         `${API_ROOT}/${this.resourceBase}`,
@@ -72,6 +82,7 @@ export class BaseAuthenticatedRoute {
     if (!id) {
       throw new Error('id is required');
     }
+    requireAuthentication();
     try {
       const response = await this.#fetch(
         `${API_ROOT}/${this.resourceBase}/${id}`,
@@ -91,6 +102,7 @@ export class BaseAuthenticatedRoute {
     if (!id) {
       throw new Error('id is required');
     }
+    requireAuthentication();
     try {
       const response = await this.#fetch(
         `${API_ROOT}/${this.resourceBase}/${id}`,
